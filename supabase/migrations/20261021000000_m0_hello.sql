@@ -18,8 +18,10 @@ create policy "Anyone can read hello"
   to anon, authenticated
   using (true);
 
--- Supabase is making table access opt-in, so grant read access explicitly
--- (Expo's "Using Supabase" guide, checked Oct 21, 2026).
-grant select on public.hello to anon, authenticated;
+-- Table access: some Supabase projects still give every new table full access automatically,
+-- and others make it opt-in. Take everything away first, then allow reading only
+-- (Supabase docs, "Securing your API" and "Row Level Security", checked Oct 21, 2026).
+revoke all on table public.hello from anon, authenticated;
+grant select on table public.hello to anon, authenticated;
 
 insert into public.hello (message) values ('Hello from Supabase');
