@@ -11,9 +11,11 @@ import { checkSupabaseConfig } from './env';
 // EXPO_PUBLIC_ values are copied into the app when it's bundled, so anyone can read them.
 // That's fine for the URL and the publishable key, because Row Level Security protects the data.
 // Read them exactly like this (no destructuring), or Expo can't copy them in.
+// Expo's docs call the key EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY and Supabase's Connect panel
+// calls it EXPO_PUBLIC_SUPABASE_KEY, so either name works.
 export const supabaseConfig = checkSupabaseConfig(
   process.env.EXPO_PUBLIC_SUPABASE_URL,
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.EXPO_PUBLIC_SUPABASE_KEY,
 );
 
 const client: SupabaseClient | null = supabaseConfig.ok
