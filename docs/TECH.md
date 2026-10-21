@@ -20,14 +20,14 @@ Facts marked *(checked Oct 20, 2026)* were looked up that day. Versions and APIs
 **Promit (needs his accounts):**
 1. Install Node.js (LTS), Git and VS Code. Make free accounts at github.com, expo.dev and supabase.com.
 2. In Supabase, create a project in **Canada (Central)** and save the database password in a password manager. Then go to Authentication and turn on **anonymous sign-ins**.
-3. Copy the project URL and the **publishable** key (or the older "anon" key) into the `.env` file the agent creates. Never use the **secret** key (or the older `service_role` key) in the app.
-4. Install **Expo Go** on his phone for the first steps. Later, install the development build the agent makes (§9).
+3. Copy the project URL and the **publishable** key (or the older "anon" key) into `.env`, which Promit makes on his computer by copying `.env.example` (README). Never use the **secret** key (or the older `service_role` key) in the app.
+4. Install **Expo Go** on his phone for the first steps (on iPhone only through TestFlight, which needs the Apple Developer Program; see §9). Later, install the development build the agent makes (§9).
 
 **Agent:**
 1. Create the app with the current default Expo template (check docs.expo.dev for the command). It should come with TypeScript and Expo Router. *(Oct 21: created with `--template default@sdk-57`, because Expo Go on phones still runs SDK 57 during the SDK 58 transition. Move to SDK 58 with the development build in M2. See DECISIONS.md.)*
 2. Add `@supabase/supabase-js` by following Supabase's current **Expo React Native quickstart** and Expo's "Using Supabase" guide (session storage with `expo-sqlite/localStorage/install`, which replaced AsyncStorage in the current docs, and the AppState pattern for auto-refreshing tokens).
 3. Write the database as SQL files in `supabase/migrations/` (§4). Promit applies them with the Supabase CLI or by pasting them into the SQL editor. Every schema change is a new file in git.
-4. Create `.env.example` (committed) and `.env` (git-ignored) with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the names Supabase's and Expo's docs use). Anything starting with `EXPO_PUBLIC_` ends up inside the app and is visible to anyone, so only the publishable key goes there.
+4. Create `.env.example` (committed). `.env` stays git-ignored and only exists on Promit's computer. Both hold `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the names Supabase's and Expo's docs use). Anything starting with `EXPO_PUBLIC_` ends up inside the app and is visible to anyone, so only the publishable key goes there.
 
 ## §3 Project structure
 
@@ -60,7 +60,7 @@ Tests sit next to the code (`*.test.ts`). Everything in `src/rules/` and `src/li
 
 ## §4 Data model
 
-A sketch. The agent writes the real migration and checks it against the current Supabase and Postgres docs.
+A sketch. The agent writes the real migration and checks it against the current Supabase and Postgres docs. **The M1 migration follows `docs/DOCS_CHECK.md` ("For Milestone 1"):** one policy per action instead of `for all`, `(select auth.uid())`, `revoke all` then explicit grants on every table, and indexes on `user_id`.
 
 ```sql
 create type task_status as enum ('planned','started','done','partly','not_yet','unanswered');
@@ -200,6 +200,8 @@ Notes:
 
 *(Fees and limits checked Oct 20, 2026.)*
 - EAS free plan: **15 Android + 15 iOS builds a month**, in a low-priority queue, so start builds early in the day. Use **EAS Update** for JavaScript-only changes (copy, rules, screens) so testers get fixes without a new build. A native change (a new native library, permissions, icon, app config) needs a new build.
+- **`.env` doesn't reach EAS.** It's git-ignored, so cloud builds and EAS Update never see it. Before the first cloud build or `eas update`, store `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` as EAS environment variables (plain-text visibility) for development, preview and production, on the EAS dashboard's Environment variables page, with `eas env:set --name … --value … --environment … --visibility plaintext`, or with `eas integrations:supabase:connect --link <project-ref>` (Expo `guides/using-supabase.mdx`). Always pass `--environment` to `eas update`.
+- After changing `.env`, clear the bundler cache (`npx expo start --clear`, `npx expo export --clear`), or the old values can stay in the bundle.
 - `eas.json` profiles: `development` (dev client, internal), `preview` (internal; Android `buildType: apk`), `production` (TestFlight / Play).
 - Submit iOS builds with `eas submit -p ios`. Set the app config so App Store Connect doesn't ask about encryption on every build. We only use standard HTTPS; check Expo's docs for `usesNonExemptEncryption`.
 - App identity: display name **Follow Through** (working name, easy to change). iOS bundle id and Android package **`com.promitd.studentapp`**, which **can't change after the first store upload**. Version `0.1.0`. Icon: simple and neutral, nothing medical, no brains.

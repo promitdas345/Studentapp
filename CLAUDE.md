@@ -67,6 +67,7 @@ Not in v1, even if it looks easy: due dates, syllabus import or Brightspace sync
 | `docs/PLAN.md` | Milestones and dates, cut list, the tester test and pass line |
 | `docs/EVIDENCE.md` | Interviews and research behind each decision |
 | `docs/DECISIONS.md` | What's decided and what's still open |
+| `docs/DOCS_CHECK.md` | What the current Expo and Supabase docs change in the plan. Read it before M1 and M2. |
 | `docs/BACKLOG.md` | Ideas for after v1 |
 | `docs/PRIVACY.md` | Draft privacy page |
 | `docs/AI_LOG.md` | AI-use log for the course |

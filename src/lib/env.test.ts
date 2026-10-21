@@ -28,6 +28,13 @@ describe('checkSupabaseConfig', () => {
     expect(checkSupabaseConfig('  ', '  ')).toEqual({ ok: false, problem: 'missing' });
   });
 
+  test('treats the .env.example placeholders as missing', () => {
+    expect(
+      checkSupabaseConfig('https://your-project-ref.supabase.co', 'sb_publishable_your_key_here'),
+    ).toEqual({ ok: false, problem: 'missing' });
+    expect(checkSupabaseConfig(URL_OK, 'sb_publishable_your_key_here')).toEqual({ ok: false, problem: 'missing' });
+  });
+
   test('reports a URL that is not https', () => {
     expect(checkSupabaseConfig('abcdefghijklmnopqrst.supabase.co', 'sb_publishable_abc')).toEqual({
       ok: false,

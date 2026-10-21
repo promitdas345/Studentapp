@@ -6,9 +6,9 @@
 
 | Dates (2026) | Milestone | Notes |
 |---|---|---|
-| Tue Oct 20 – Wed Oct 21 | **M0 Setup** | Doesn't depend on the Oct 21 review. If the review changes the segment or the problem, update PRODUCT.md before M2. |
+| Tue Oct 20 – Wed Oct 21 | **M0 Setup** | **If Promit's phone is an iPhone, Expo Go needs the Apple Developer Program ($99) now** (DECISIONS open question 5); otherwise test M0–M1 on an Android phone. Doesn't depend on the Oct 21 review. If the review changes the segment or the problem, update PRODUCT.md before M2. |
 | Thu Oct 22 – Sat Oct 24 | **M1 Data, onboarding, Today, Plan** | |
-| Sun Oct 25 – Tue Oct 27 | **M2 Notifications, Start, timer, first development build** | Pay Apple's $99 by now if Promit's phone is an iPhone |
+| Sun Oct 25 – Tue Oct 27 | **M2 Notifications, Start, timer, first development build** | Apple's $99: see DECISIONS open question 5 (needed from M0 on an iPhone) |
 | Wed Oct 28 – Fri Oct 30 | **M3 Check-in, fixes, safety** | The team starts using the app daily (team codes) once check-in works. **Fri Oct 30: submit the first TestFlight build for Beta App Review** and make the Android APK. |
 | Sat Oct 31 – Mon Nov 2 | **M4 This week, Settings, delete, polish, privacy page** | **Sun Nov 1: clocks go back.** Check that every nudge that day is on time. |
 | Tue Nov 3 | **M5 Go / no-go**, then the first in-person onboardings | §7 checklist |

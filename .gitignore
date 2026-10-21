@@ -31,8 +31,8 @@ yarn-error.*
 *.pem
 
 # local env files: these hold your Supabase keys. Only .env.example is committed.
-.env
-.env*.local
+.env*
+!.env.example
 
 # typescript
 *.tsbuildinfo

@@ -18,6 +18,8 @@ type CheckState =
 async function readHelloRow(): Promise<CheckState> {
   try {
     const { data, error } = await getSupabase().from('hello').select('message').limit(1);
+    // PGRST205: the table doesn't exist yet, so the SQL file hasn't been run.
+    if (error?.code === 'PGRST205') return { kind: 'noRow' };
     if (error) return { kind: 'failed', detail: error.message };
     if (!data || data.length === 0) return { kind: 'noRow' };
     return { kind: 'connected', message: String(data[0].message) };

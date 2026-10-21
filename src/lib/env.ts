@@ -5,6 +5,10 @@ export type SupabaseConfig =
   | { ok: true; url: string; key: string }
   | { ok: false; problem: 'missing' | 'bad_url' | 'secret_key' };
 
+// The placeholder values in .env.example. Leaving them in counts as missing.
+const PLACEHOLDER_URL_PART = 'your-project-ref';
+const PLACEHOLDER_KEY = 'sb_publishable_your_key_here';
+
 export function checkSupabaseConfig(
   url: string | undefined,
   key: string | undefined,
@@ -12,6 +16,9 @@ export function checkSupabaseConfig(
   const cleanUrl = url?.trim();
   const cleanKey = key?.trim();
   if (!cleanUrl || !cleanKey) return { ok: false, problem: 'missing' };
+  if (cleanUrl.includes(PLACEHOLDER_URL_PART) || cleanKey === PLACEHOLDER_KEY) {
+    return { ok: false, problem: 'missing' };
+  }
   if (!cleanUrl.startsWith('https://')) return { ok: false, problem: 'bad_url' };
   if (isSecretKey(cleanKey)) return { ok: false, problem: 'secret_key' };
   return { ok: true, url: cleanUrl, key: cleanKey };

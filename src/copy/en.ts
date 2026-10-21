@@ -12,10 +12,11 @@ export const en = {
     missingEnv:
       'The Supabase settings are missing. Copy .env.example to .env, fill in the two values, then restart Expo.',
     badUrl:
-      'The Supabase URL in .env doesn’t look right. It should start with https:// and end with .supabase.co.',
+      'The Supabase URL in .env doesn’t look right. It needs to start with https://, like https://abcd.supabase.co.',
     secretKey:
-      'This is a secret key. It must never go in the app. Use the publishable key from Project Settings → API Keys instead.',
-    noRow: 'Connected, but the test row is missing. Run the SQL file in supabase/migrations in the SQL editor.',
+      'This is a secret key. It must never go in the app, and it was already copied into it. In Supabase, go to Project Settings → API Keys and delete this key (for the old service_role key, turn off the legacy keys there). Then put the publishable key in .env and restart Expo.',
+    noRow:
+      'Connected, but the test data isn’t there yet. In Supabase, open SQL Editor, paste the file from supabase/migrations and run it. Then tap Try again.',
     readFailed: 'Couldn’t read from Supabase:',
     retry: 'Try again',
   },
