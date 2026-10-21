@@ -49,3 +49,5 @@ npx expo-doctor     # Expo's project health check
 ## Database
 
 SQL files live in `supabase/migrations/`, oldest first. To apply one: Supabase dashboard → **SQL Editor** → **New query** → paste the whole file → **Run**.
+
+After applying a migration, run `supabase/tests/rls_check.sql` the same way. It tries to read and change another user's data and prints a table: **every row should say PASS**. It cleans up after itself.
