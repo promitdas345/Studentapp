@@ -194,7 +194,7 @@ Notes:
 
 | Stage | iPhone | Android |
 |---|---|---|
-| First steps (M0–M1) | Expo Go | Expo Go |
+| First steps (M0–M1) | Expo Go, **but only through TestFlight now** (`npx eas-cli@latest go`), which needs the **Apple Developer Program ($99 USD/year)**. The App Store's Expo Go stops at SDK 54. *(Expo docs, checked Oct 21, 2026: troubleshooting/expo-go-version-mismatch and the iOS Expo Go setup steps.)* | Expo Go from Google Play or expo.dev/go, free |
 | Development build (from M2) | Needs the **Apple Developer Program ($99 USD/year)**. Register each iPhone (`eas device:create`); Apple allows about 100 iPhones a year. | Install the build's APK directly, free |
 | Team and testers (from ~Oct 30) | **TestFlight external testing**: invite by email or a public link, up to 10,000 testers. It needs a beta description and a feedback email, and the first build of each version goes through Beta App Review (allow a day or two). | **Direct APK** link (testers allow "install unknown apps"), free. Or **Play Console internal testing** (up to 100 testers by email, no review), which needs the **$25 USD one-time** developer account. |
 

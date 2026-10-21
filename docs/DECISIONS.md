@@ -40,7 +40,7 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 | 2 | App name and icon (the Bangladesh plan wants a discreet, neutral name) | "Follow Through" | Before the store listings |
 | 3 | Feedback email shown in the app and on TestFlight | Hidden in the app. TestFlight needs one, so use the team's. | Before Oct 30 |
 | 4 | What happens to testers' data after the test | Deleted at the end unless the tester keeps using the app | Before Nov 3 (it goes on the privacy page) |
-| 5 | When to pay Apple ($99/yr) and Google ($25 once), and which platforms to support | Apple by Oct 27 if needed. Google only if several testers have Android and the APK route doesn't work. | Oct 27 |
+| 5 | When to pay Apple ($99/yr) and Google ($25 once), and which platforms to support | Apple by Oct 27 if needed. **Update Oct 21:** on an iPhone, even Expo Go now needs the Apple Developer Program (Expo docs), so an iPhone needs the $99 at M0, not M2. Google only if several testers have Android and the APK route doesn't work. | Oct 27 |
 | 6 | Pass-line details (PLAN.md §6) | As written | **Lock before Nov 3** |
 | 7 | Dr. Nwauche's OK that testing the app is covered by the course letter | No testers until it's in writing | Ask now |
 | 8 | Is the WhatsApp check-in test running? If so, its reasons and fixes log feeds RULES.md. | — | Oct 21 |
@@ -51,7 +51,7 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 
 | Date | Decision | Why |
 |---|---|---|
-| Oct 21 | Use **Expo SDK 57** for now, not 58. Move to 58 in M2 with the development build. | Expo's docs (Oct 20): during the SDK 58 transition, Expo Go on phones runs SDK 57, and M0–M1 are tested in Expo Go. |
+| Oct 21 | Use **Expo SDK 57** for now, not 58. Move to 58 with the first development build. | Expo's docs (Oct 20): during the SDK 58 transition, Expo Go runs SDK 57, and M0–M1 are tested in Expo Go. Note: the App Store's Expo Go stops at SDK 54, so on an iPhone Expo Go needs the Apple Developer Program either way (see open question 5). |
 | Oct 21 | Screens live in `src/app/`, not `app/` (TECH.md §3 updated) | That's where the SDK 57 default template and Expo Router expect them. Same structure otherwise. |
 | Oct 21 | The key's variable is `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, not `EXPO_PUBLIC_SUPABASE_KEY` (TECH.md §2 updated) | Matches Supabase's and Expo's docs and the dashboard, so it's clear which key goes there |
 | Oct 21 | The sign-in session is stored with `expo-sqlite`'s localStorage, not AsyncStorage | Expo's current "Using Supabase" guide and Supabase's quickstart both use it, and it works in Expo Go |

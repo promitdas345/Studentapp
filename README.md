@@ -7,7 +7,10 @@ A phone app that helps university students do the studying they planned, and fix
 
 ## Run it on your phone
 
-You need [Node.js (LTS)](https://nodejs.org/) and Git on your computer, and the **Expo Go** app on your phone. Your computer and phone must be on the same Wi-Fi.
+You need [Node.js](https://nodejs.org/) (the LTS version, 22 or newer) and Git on your computer, and the **Expo Go** app (SDK 57) on your phone. Your computer and phone must be on the same Wi-Fi.
+
+- **Android:** install Expo Go from Google Play. If it says the project needs a different version, get the SDK 57 build from [expo.dev/go](https://expo.dev/go).
+- **iPhone:** the App Store's Expo Go only runs SDK 54. For this project, Expo Go has to come through TestFlight (`npx eas-cli@latest go`), which needs the Apple Developer Program ($99 USD a year). See `docs/DECISIONS.md` open question 5.
 
 1. Get the code and install the packages (first time only):
    ```bash
