@@ -1,56 +1,41 @@
-# Welcome to your Expo app 👋
+# Follow Through (working name)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A phone app that helps university students do the studying they planned, and fix the plan when a day goes sideways. BUSI 3630 team project (Memorial University).
 
-## Get started
+- **Rules for anyone (or any AI agent) working on the code:** [`CLAUDE.md`](CLAUDE.md)
+- **What v1 is and why:** [`docs/`](docs/), starting with [`docs/PRODUCT.md`](docs/PRODUCT.md) and [`docs/PLAN.md`](docs/PLAN.md)
 
-1. Install dependencies
+## Run it on your phone
 
+You need [Node.js (LTS)](https://nodejs.org/) and Git on your computer, and the **Expo Go** app on your phone. Your computer and phone must be on the same Wi-Fi.
+
+1. Get the code and install the packages (first time only):
    ```bash
+   git clone https://github.com/promitdas345/student-app.git
+   cd student-app
    npm install
    ```
-
-2. Start the app
-
+2. Make your settings file: copy `.env.example` to a new file called `.env`, then fill in your Supabase project's URL and **publishable** key (Supabase dashboard → your project → **Connect**). `.env` is git-ignored, so it never goes to GitHub.
+3. **iPhone only, first time:** sign in to the same Expo account in both places. On your computer, run `npx expo login`. In Expo Go, tap the account icon at the top right. Expo Go on iPhone only opens your project when both use the same account.
+4. Start the app:
    ```bash
    npx expo start
    ```
+5. Scan the QR code it shows: with the **Camera** app on iPhone, or from inside **Expo Go** on Android.
 
-In the output, you'll find options to open the app in a
+If the phone can't connect (common on campus or other public Wi-Fi), stop it with Ctrl+C and run `npx expo start --tunnel` instead. It's slower, but it works across networks.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+To get later changes: `git pull`, then `npm install`, then `npx expo start` again.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Checks to run before calling something done
 
 ```bash
-npm run reset-project
+npm test            # unit tests
+npm run typecheck   # TypeScript errors
+npm run lint        # code style and React mistakes
+npx expo-doctor     # Expo's project health check
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Database
 
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+SQL files live in `supabase/migrations/`, oldest first. To apply one: Supabase dashboard → **SQL Editor** → **New query** → paste the whole file → **Run**.

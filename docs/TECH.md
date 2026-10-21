@@ -24,22 +24,22 @@ Facts marked *(checked Oct 20, 2026)* were looked up that day. Versions and APIs
 4. Install **Expo Go** on his phone for the first steps. Later, install the development build the agent makes (§9).
 
 **Agent:**
-1. Create the app with the current default Expo template (check docs.expo.dev for the command). It should come with TypeScript and Expo Router.
-2. Add `@supabase/supabase-js` by following Supabase's current **Expo React Native quickstart** (session storage with AsyncStorage, and the AppState pattern for auto-refreshing tokens).
+1. Create the app with the current default Expo template (check docs.expo.dev for the command). It should come with TypeScript and Expo Router. *(Oct 21: created with `--template default@sdk-57`, because Expo Go on phones still runs SDK 57 during the SDK 58 transition. Move to SDK 58 with the development build in M2. See DECISIONS.md.)*
+2. Add `@supabase/supabase-js` by following Supabase's current **Expo React Native quickstart** and Expo's "Using Supabase" guide (session storage with `expo-sqlite/localStorage/install`, which replaced AsyncStorage in the current docs, and the AppState pattern for auto-refreshing tokens).
 3. Write the database as SQL files in `supabase/migrations/` (§4). Promit applies them with the Supabase CLI or by pasting them into the SQL editor. Every schema change is a new file in git.
-4. Create `.env.example` (committed) and `.env` (git-ignored) with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY`. Anything starting with `EXPO_PUBLIC_` ends up inside the app and is visible to anyone, so only the publishable key goes there.
+4. Create `.env.example` (committed) and `.env` (git-ignored) with `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the names Supabase's and Expo's docs use). Anything starting with `EXPO_PUBLIC_` ends up inside the app and is visible to anyone, so only the publishable key goes there.
 
 ## §3 Project structure
 
 ```
-app/                              # Expo Router screens
+src/app/                          # Expo Router screens (the SDK 57 template keeps routes in src/app/)
   _layout.tsx                     # sign-in gate, notification-tap handling, resync on foreground
   onboarding/welcome.tsx  collect.tsx  setup.tsx  reminders.tsx
   (tabs)/_layout.tsx  index.tsx (Today)  week.tsx  settings.tsx
   plan.tsx                        # add/edit; params: date, prefill, fromFixEvent
   start/[taskId].tsx  timer/[taskId].tsx  checkin/[taskId].tsx  fix/[taskId].tsx
   support.tsx
-src/
+src/                              # everything that isn't a screen
   copy/en.ts                      # every user-facing string
   rules/fixes.ts                  # fix ladders as data (RULES.md §3)
   rules/selectFix.ts              # RULES.md §4.1

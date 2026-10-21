@@ -51,3 +51,10 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 
 | Date | Decision | Why |
 |---|---|---|
+| Oct 21 | Use **Expo SDK 57** for now, not 58. Move to 58 in M2 with the development build. | Expo's docs (Oct 20): during the SDK 58 transition, Expo Go on phones runs SDK 57, and M0–M1 are tested in Expo Go. |
+| Oct 21 | Screens live in `src/app/`, not `app/` (TECH.md §3 updated) | That's where the SDK 57 default template and Expo Router expect them. Same structure otherwise. |
+| Oct 21 | The key's variable is `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, not `EXPO_PUBLIC_SUPABASE_KEY` (TECH.md §2 updated) | Matches Supabase's and Expo's docs and the dashboard, so it's clear which key goes there |
+| Oct 21 | The sign-in session is stored with `expo-sqlite`'s localStorage, not AsyncStorage | Expo's current "Using Supabase" guide and Supabase's quickstart both use it, and it works in Expo Go |
+| Oct 21 | The app refuses to start with a secret or `service_role` key and shows what to fix | A secret key skips Row Level Security (CLAUDE.md rule 5). Cheap insurance against a copy-paste mistake. |
+| Oct 21 | Removed the template's LICENSE file (MIT, copyright Expo) | It would have put our code under an open-source license by accident. With no license the code stays all-rights-reserved until the team decides ownership (open question 9). |
+| Oct 21 | Test-only table `hello` for M0 (RLS on, read-only, explicit `grant select`) | Proves the app reaches Supabase. A Milestone 1 migration drops it. The grant follows Expo's guide, because Supabase is making table access opt-in. |
