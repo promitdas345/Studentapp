@@ -19,7 +19,7 @@
 
 ## §2 Milestones: what "done" means, checked on a real phone
 
-**M0 Setup**
+**M0 Setup** — **done Oct 21, 2026:** Promit saw "Hello from Supabase" on his Android in Expo Go (SDK 57).
 - The repo exists, with `CLAUDE.md` at the root and the docs in `docs/`. Private GitHub repo `student-app`.
 - The app opens on Promit's phone in Expo Go and shows a test screen that reads one row from Supabase.
 - The Supabase project is in Canada (Central), anonymous sign-ins are on, and `.env` works.
