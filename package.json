@@ -1,7 +1,7 @@
 {
   "name": "student-app",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "@expo/ui": "~57.0.25",
     "expo": "~57.0.30",
@@ -33,7 +33,6 @@
   },
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
