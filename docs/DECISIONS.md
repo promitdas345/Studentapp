@@ -40,7 +40,7 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 | 2 | App name and icon (the Bangladesh plan wants a discreet, neutral name) | "Follow Through" | Before the store listings |
 | 3 | Feedback email shown in the app and on TestFlight | Hidden in the app. TestFlight needs one, so use the team's. | Before Oct 30 |
 | 4 | What happens to testers' data after the test | Deleted at the end unless the tester keeps using the app | Before Nov 3 (it goes on the privacy page) |
-| 5 | When to pay Apple ($99/yr) and Google ($25 once), and which platforms to support | Apple by Oct 27 if needed. **Update Oct 21:** on an iPhone, even Expo Go now needs the Apple Developer Program (Expo docs), so an iPhone needs the $99 at M0, not M2. Google only if several testers have Android and the APK route doesn't work. | Oct 27 |
+| 5 | When to pay Apple ($99/yr) and Google ($25 once), and which platforms to support | Apple by Oct 27 if needed. **Update Oct 21:** on an iPhone, even Expo Go now needs the Apple Developer Program (Expo docs). **Promit's phone is Android**, so M0–M2 cost nothing (Expo Go, then a development-build APK). Apple's $99 is only needed if testers have iPhones (TestFlight, first build ~Oct 30). Google only if several testers have Android and the APK route doesn't work. | Oct 27 |
 | 6 | Pass-line details (PLAN.md §6) | As written | **Lock before Nov 3** |
 | 7 | Dr. Nwauche's OK that testing the app is covered by the course letter | No testers until it's in writing | Ask now |
 | 8 | Is the WhatsApp check-in test running? If so, its reasons and fixes log feeds RULES.md. | — | Oct 21 |
