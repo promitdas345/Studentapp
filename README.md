@@ -14,8 +14,8 @@ You need [Node.js](https://nodejs.org/) (the current LTS version, at least 22.13
 
 1. **Get the code and install the packages** (first time only). The repo is private, so sign in to GitHub when git asks.
    ```bash
-   git clone https://github.com/promitdas345/student-app.git
-   cd student-app
+   git clone https://github.com/promitdas345/Studentapp.git
+   cd Studentapp
    npm install
    ```
    npm may say it found "vulnerabilities". That's expected. **Don't run `npm audit fix --force`**: it swaps in the wrong Expo version. If package versions ever look wrong, run `npx expo install --fix` instead.
