@@ -22,7 +22,8 @@ You need [Node.js](https://nodejs.org/) (the current LTS version, at least 22.13
 2. **Set up Supabase** (first time only):
    1. At [supabase.com](https://supabase.com), create a new project. Pick the region **Canada (Central)**, and save the database password in a password manager.
    2. Go to **Authentication**, open the sign-in providers page (**Sign In / Providers**), and turn on **Allow anonymous sign-ins**.
-   3. Go to **SQL Editor** → **New query**, paste the whole of `supabase/migrations/20261021000000_m0_hello.sql`, and click **Run**.
+   3. Go to **SQL Editor** → **New query**. Paste the whole of each file in `supabase/migrations/`, oldest first, and click **Run** for each one. Each file runs only once.
+   4. Run `supabase/tests/rls_check.sql` the same way. Every row should say **PASS**.
 3. **Make your settings file:** copy `.env.example` to a new file called `.env`, then replace the two example values with your project's URL and **publishable** key (Supabase dashboard → your project → **Connect**). `.env` is git-ignored, so it never goes to GitHub.
 4. **iPhone only, first time:** sign in to the same Expo account in both places. On your computer, run `npx expo login`. In Expo Go, tap the account icon at the top right. Expo Go on iPhone only opens your project when both use the same account.
 5. **Start the app:**
@@ -31,7 +32,9 @@ You need [Node.js](https://nodejs.org/) (the current LTS version, at least 22.13
    ```
 6. **Scan the QR code** it shows: with the **Camera** app on iPhone, or from inside **Expo Go** on Android.
 
-You should see **Follow Through** with **Setup check** under it, and then "Connected to Supabase. The test row says: Hello from Supabase". If something is missing, the screen says what to fix.
+You should see the **Welcome** screen ("When work piles up, it's easy to feel buried."). Tap through: What we collect (tick 18+, enter your tester code, e.g. TEAM1) → Setup → Reminders → **Today**. If `.env` is missing or wrong, the app says what to fix instead.
+
+**Expected in Expo Go on Android:** two yellow warnings from `expo-notifications` about Expo Go. They're about *push* notifications, which we don't use (our reminders are created on the phone). They go away with the development build in Milestone 2.
 
 If the phone can't connect (common on campus or other public Wi-Fi), stop it with Ctrl+C and run `npx expo start --tunnel` instead. It's slower, but it works across networks. After changing `.env`, restart with `npx expo start --clear` so the new values are picked up.
 

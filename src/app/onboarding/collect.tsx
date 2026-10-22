@@ -1,5 +1,6 @@
 // S2 What we collect: the plain list, the 18+ checkbox and the tester code (PRODUCT.md S2).
 // Nothing is saved anywhere until Start: then we sign in anonymously and create the profile.
+import { isAuthRetryableFetchError } from '@supabase/supabase-js';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
@@ -33,7 +34,9 @@ export default function Collect() {
     try {
       const supabase = getSupabase();
       // Reuse the anonymous account if an earlier Start signed in but couldn't save the profile.
-      let session = (await supabase.auth.getSession()).data.session;
+      const existing = await supabase.auth.getSession();
+      if (existing.error && isAuthRetryableFetchError(existing.error)) throw existing.error;
+      let session = existing.data.session;
       if (!session) {
         const { data, error } = await supabase.auth.signInAnonymously();
         if (error || !data.session) throw toDataError(error ?? new Error('No session'));
@@ -51,9 +54,9 @@ export default function Collect() {
       } catch (error) {
         // 23505 = the profile already exists (the first try saved it but the answer got lost).
         if (toDataError(error).code !== '23505') throw error;
-        const existing = await fetchMyProfile();
-        if (!existing) throw error;
-        profile = existing;
+        const saved = await fetchMyProfile();
+        if (!saved) throw error;
+        profile = saved;
       }
       signedUp(session.user.id, profile);
     } catch (error) {

@@ -10,6 +10,12 @@ export const en = {
     retry: 'Try again',
   },
 
+  // Clock times are written like '7:00 pm' (src/lib/time.ts formatTime).
+  time: {
+    am: 'am',
+    pm: 'pm',
+  },
+
   // S1 Welcome (first launch only)
   welcome: {
     title: 'When work piles up, it’s easy to feel buried.',

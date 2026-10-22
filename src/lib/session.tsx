@@ -4,8 +4,10 @@
 //   needsSetup → Setup, Reminders
 //   ready      → Today, Plan
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { isAuthRetryableFetchError } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 
+import { toDataError, type DataErrorKind } from '../data/errors';
 import { fetchMyProfile, updateMyProfile } from '../data/profile';
 import type { Profile } from '../data/types';
 import { deviceTimeZone } from './device';
@@ -17,6 +19,8 @@ export type AppStatus = 'loading' | 'loadFailed' | 'signedOut' | 'needsSetup' | 
 
 type Session = {
   status: AppStatus;
+  // Why the last launch couldn't load: no internet, or a problem on the server.
+  loadFailKind: DataErrorKind;
   userId: string | null;
   profile: Profile | null;
   // Called by "What we collect" once the anonymous sign-in and the profile row both worked.
@@ -40,6 +44,7 @@ export function useSession(): Session {
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AppStatus>('loading');
+  const [loadFailKind, setLoadFailKind] = useState<DataErrorKind>('network');
   const [userId, setUserId] = useState<string | null>(null);
   const [profile, setProfileState] = useState<Profile | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
@@ -73,7 +78,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     let active = true;
     (async () => {
       try {
-        const { data } = await getSupabase().auth.getSession();
+        const { data, error } = await getSupabase().auth.getSession();
+        // With no internet, refreshing a saved sign-in fails and getSession returns no session.
+        // That must show "Try again", not send a returning student back to Welcome.
+        if (error && isAuthRetryableFetchError(error)) throw error;
         const session = data.session;
         if (!session) {
           if (active) setStatus('signedOut');
@@ -91,8 +99,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setStatus(hasFinishedOnboarding(session.user.id) ? 'ready' : 'needsSetup');
         track('app_open');
         syncTimeZone(loaded);
-      } catch {
-        if (active) setStatus('loadFailed');
+      } catch (error) {
+        if (!active) return;
+        setLoadFailKind(toDataError(error).kind);
+        setStatus('loadFailed');
       }
     })();
     return () => {
@@ -124,12 +134,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Session>(
     () => ({
       status,
+      loadFailKind,
       userId,
       profile,
       signedUp: (id, created) => {
         setUserId(id);
         setProfile(created);
-        setStatus('needsSetup');
+        setStatus(hasFinishedOnboarding(id) ? 'ready' : 'needsSetup');
       },
       setProfile,
       finishOnboarding: () => {
@@ -146,7 +157,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       showFlash: setFlash,
       clearFlash,
     }),
-    [status, userId, profile, setProfile, flash, clearFlash],
+    [status, loadFailKind, userId, profile, setProfile, flash, clearFlash],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

@@ -112,7 +112,7 @@ If the weekly goal was **not** met two weeks in a row, This week shows (at most 
 
 - **Runs on every free-text field before saving:** task titles, the "Something else" note, if-then plans and custom routines.
 - **How it matches:** lowercase, curly apostrophes turned straight, other punctuation (hyphens too) replaced with spaces, spaces collapsed, then check for any phrase below **from the start of a word**. The phrase must begin the text or come right after a space (or after an apostrophe, so a quoted 'end it all' still counts). It can run on into the rest of a word on the right, so "self harming", "overdosed" and "suicidal thoughts" still match. Why: matching anywhere inside a word set off false alarms on everyday text, like "send it all to Sam" and "spend it all" looking like "end it all". (Changed Oct 21, 2026, approved by Promit.) After the first step, "self-harm" reads as "self harm". In the code, "punctuation" means anything that isn't a letter, a number, an apostrophe or a space, so symbols and emoji count too.
-- **Starting list** (ask an MUN counsellor or clinician to review it before a public launch): suicide · suicidal · kill myself · killing myself · end my life · end it all · want to die · wanna die · don't want to live · dont want to live · don't want to be here anymore · no reason to live · better off dead · hurt myself · hurting myself · self harm · self-harm · selfharm · cut myself · cutting myself · overdose
+- **Starting list** (ask an MUN counsellor or clinician to review it before a public launch): suicide · suicidal · kill myself · killing myself · end my life · end it all · want to die · wanna die · don't want to live · dont want to live · don't want to be here anymore · dont want to be here anymore · no reason to live · better off dead · hurt myself · hurting myself · self harm · self-harm · selfharm · cut myself · cutting myself · overdose
 - **Must not match** (write tests): "this exam is killing me", "dead tired", "I'm dying to finish this", "kill this assignment", "cut my study time".
 - **On a match:** don't save the text and don't log it anywhere. Open the Support screen (S13) with the opening line in 6.2. When they come back, the field is empty and they can carry on. The app never tries to judge how serious it is, and no one on the team is notified. The "What we collect" screen says plainly that we can't respond to emergencies.
 - A false alarm is fine: the Support screen is calm and helpful either way.
@@ -154,6 +154,7 @@ Name or hint at a condition, give a risk score, collect diagnoses, give treatmen
 **S1 Welcome.** Title: "When work piles up, it's easy to feel buried." Body: "Follow Through helps you do what you planned. And when a day goes sideways, it helps you fix the plan instead of feeling bad about it. One minute a day." Small print: "A student project from a MUN business course." Button: "Let's start"
 
 **S2 What we collect.** Title: "What we collect"
+- "Your tester code, settings and phone's time zone" *(added Oct 21, see DECISIONS.md)*
 - "Your plans: what you want to do and when"
 - "Your check-ins: done or not, and what got in the way"
 - "Which fixes you try"
@@ -166,7 +167,7 @@ Checkbox: "I'm 18 or older". Field: "Tester code". Button: "Start". Error: "Chec
 **S3 Setup.**
 - "What's hardest for you? Pick any. You can change this later." Options: Getting started · Losing track of time · Forgetting what I planned · Getting distracted.
 - "How many days a week do you want to check in?" Hint: "4 is a good start. Missing a day doesn't reset anything."
-- "When should we remind you to plan?" Hint: "Most people plan the evening before." Options: Evening · Morning, with a time.
+- "When do you want to plan?" Hint: "Planning the evening before makes mornings easier." Options: Evening · Morning, with a time. *(Reworded Oct 21: §1 bans "should" and comparing with other people.)*
 
 **S4 Reminders.** Title: "Can we nudge you?" Body: "We'll send a quick nudge when it's time to start, and ask how it went after. You can change this anytime." Buttons: "Turn on reminders" · "Not now". Banner later: "Reminders are off, so we can't nudge you." Button: "Turn on"
 
@@ -211,3 +212,5 @@ If-then builder: "If ___, then I'll ___." Examples to tap: "If it's 7 pm and I'm
 **S14 Welcome back.** "Welcome back. No catching up needed — let's just plan today." Buttons: "Plan today" · "Make this week's goal lighter"
 
 **Errors.** Save failed: "Couldn't save. Check your connection and try again." Server problem: "Something went wrong on our side. Try again in a minute."
+
+**Added in Milestone 1 (Oct 21), same tone:** Today: "Tomorrow" (section), "Edit", status labels Planned / Started / Done / Partly / Not yet / No answer, "Couldn't load your plan. Check your connection and try again.", "Try again", "Back". Plan: "Change your plan" (edit title), "Remove", "Delete", "Delete this plan?" with "Delete" / "Keep it". Android notification channel name: "Reminders". All in `src/copy/en.ts`.

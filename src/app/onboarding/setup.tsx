@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { TimeField } from '../../components/TimeField';
 import { Body, Button, Chip, Gap, Heading, Notice, Row, Screen } from '../../components/ui';
 import { en } from '../../copy/en';
+import { toDataError } from '../../data/errors';
 import { updateMyProfile } from '../../data/profile';
 import type { HardThing } from '../../data/types';
 import { outsideQuietHours } from '../../lib/quietHours';
@@ -26,7 +27,7 @@ export default function Setup() {
   );
   const [time, setTime] = useState(profile?.plan_time ?? DEFAULT_TIME.evening);
   const [saving, setSaving] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   if (!profile) return null;
 
@@ -42,7 +43,7 @@ export default function Setup() {
 
   const save = async () => {
     setSaving(true);
-    setFailed(false);
+    setProblem(null);
     try {
       const updated = await updateMyProfile(profile.user_id, {
         hard_things: hard,
@@ -53,8 +54,8 @@ export default function Setup() {
       });
       setProfile(updated);
       router.push('/onboarding/reminders');
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      setProblem(toDataError(error).kind === 'network' ? en.errors.saveFailed : en.errors.server);
     } finally {
       setSaving(false);
     }
@@ -97,7 +98,7 @@ export default function Setup() {
       />
 
       <Gap />
-      {failed ? <Notice>{en.errors.saveFailed}</Notice> : null}
+      {problem ? <Notice>{problem}</Notice> : null}
       <Button label={copy.next} onPress={save} disabled={saving} />
     </Screen>
   );

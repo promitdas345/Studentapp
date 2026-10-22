@@ -26,6 +26,7 @@ export const CRISIS_PHRASES: readonly string[] = [
   "don't want to live",
   'dont want to live',
   "don't want to be here anymore",
+  'dont want to be here anymore',
   'no reason to live',
   'better off dead',
   'hurt myself',

@@ -1,16 +1,24 @@
-# Where we left off (Oct 21, 2026)
+# Where we left off (Oct 22, 2026)
 
 **Milestone 0: done.** Promit saw "Hello from Supabase" on his Android in Expo Go.
 
-**Milestone 1: code written, not yet runnable.** In the repo and tested (163 unit tests, TypeScript and lint clean, iOS and Android bundles build):
-- Onboarding S1–S4, Today, Plan (add/edit/delete, 3-a-day cap), Support
-- `src/lib/time.ts`, `src/rules/safety.ts`, `src/rules/plan.ts`, `src/rules/insights.ts`, `src/lib/quietHours.ts`
-- Data layer in `src/data/`, sign-in gate in `src/lib/session.tsx` and `src/app/_layout.tsx`
+**Milestone 1: built, reviewed and fixed. Waiting for Promit's phone test.**
+- Onboarding S1–S4, Today, Plan (add/edit/delete, 3-a-day cap), Support, crisis check on titles
+- Pure modules with 164 unit tests: `src/lib/time.ts`, `src/rules/safety.ts`, `src/rules/plan.ts`, `src/rules/insights.ts`, `src/lib/quietHours.ts`
+- Database: `supabase/migrations/20261022000000_m1_core.sql` and `supabase/tests/rls_check.sql`. All 11 checks PASS in PGlite (Postgres in Node).
+- An independent code review found 3 bugs (offline launch sent you to Welcome, edit could bypass the daily cap, Today didn't refresh on return) and smaller issues; all fixed.
 
-**Still to do for Milestone 1:**
-1. ~~Database migration~~ Done: `supabase/migrations/20261022000000_m1_core.sql`.
-2. ~~Security self-check~~ Done: `supabase/tests/rls_check.sql`. All 11 checks PASS in PGlite (Postgres in Node) with a stand-in auth schema.
-3. Independent review of the M1 app code: started, then stopped to save tokens. Run it again (3 reviewers: screens & flow, rules & time, project rules & copy & Expo Go), fix what's confirmed, and push.
-4. Promit, on his laptop: `git pull`, `npm install`, run both SQL files in Supabase, then `npx expo start --clear`. Phone checklist: PLAN.md §2 M1 (onboarding under 2 min, plan a task in under 30 s, 4th task refused, edit and delete work, typing a crisis phrase opens Support and isn't saved).
+**Next: Promit tests on his phone** (steps in README.md):
+1. `git pull`, then `npm install` (new packages).
+2. Supabase SQL Editor: run `supabase/migrations/20261022000000_m1_core.sql` once, then `supabase/tests/rls_check.sql` (every row PASS).
+3. `npx expo start --clear`, scan with Expo Go. Two yellow `expo-notifications` warnings in Expo Go are expected.
+4. Checklist (PLAN.md §2 M1):
+   - Onboarding takes under 2 minutes. In Supabase Table Editor → profiles: tester code, time zone `America/St_Johns`, consent version, 18+.
+   - A teammate who has never seen it plans a task in under 30 seconds.
+   - 3 tasks on one day, then a 4th is refused politely. Edit and delete work.
+   - Plan a task for 7:00 pm today. In Table Editor → tasks, `start_at` should be **21:30 UTC** (St. John's is UTC−2:30 until Nov 1). This checks the phone's time-zone handling, which can't be tested off the phone.
+   - Typing a crisis phrase as a title opens "Need to talk to someone?" and the title isn't saved.
 
-**Don't `git pull` on the laptop until step 3 is pushed.** After pulling, run the migration before opening the app: the new screens need the new tables.
+**Open question for the team:** PRIVACY.md now says Supabase keeps technical sign-in logs (IP address, device type). Should the "What we collect" screen (S2) say it too? If yes, update RULES §8 S2 and `src/copy/en.ts`, and bump `CONSENT_VERSION` in `src/data/profile.ts`.
+
+**After the phone test:** Milestone 2 (notifications, Start, timer, first development build). Read `docs/DOCS_CHECK.md` "For Milestone 2" first.

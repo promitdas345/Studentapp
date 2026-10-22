@@ -36,7 +36,7 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 
 | # | Question | Default until decided | When |
 |---|---|---|---|
-| 1 | Track due dates in v1? (P4 and P6 lose deadlines, but it's Shovel's ground) | No | Oct 21 review |
+| 1 | Track due dates in v1? (P4 and P6 lose deadlines, but it's Shovel's ground) | **Decided Oct 21: no** (see the log) | — |
 | 2 | App name and icon (the Bangladesh plan wants a discreet, neutral name) | "Follow Through" | Before the store listings |
 | 3 | Feedback email shown in the app and on TestFlight | Hidden in the app. TestFlight needs one, so use the team's. | Before Oct 30 |
 | 4 | What happens to testers' data after the test | Deleted at the end unless the tester keeps using the app | Before Nov 3 (it goes on the privacy page) |
@@ -69,3 +69,5 @@ Add new decisions at the bottom of the right table: date, decision, why, who.
 | Oct 21 | Until the Start screen exists (M2), each task card has an Edit button; deleting asks "Delete this plan?" (Delete / Keep it) | PRODUCT S6: edit and delete live on the task card. The confirm text isn’t in RULES §8, so it was added in the same tone |
 | Oct 21 | The plan-reminder time can’t be set inside quiet hours: late-evening picks move to 30 min before quiet hours, after-midnight picks move to when they end | TECH.md §4 says the picker doesn’t allow times inside quiet hours |
 | Oct 21 | The app decides which screens exist from the sign-in state (Expo Router protected routes), and keeps an "onboarding finished" flag on the phone per user | Expo’s documented pattern; no extra database column needed |
+| Oct 22 | The crisis list also matches "dont want to be here anymore" (no apostrophe) | The list already had both forms of "don't want to live"; the code review found the same gap here. RULES §6.1 updated first. |
+| Oct 22 | With no internet at launch, a returning student sees "Try again" instead of Welcome; server problems say "Something went wrong on our side" instead of blaming the connection | Found in the M1 code review |

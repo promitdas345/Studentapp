@@ -19,6 +19,7 @@ Your name, email, phone number, contacts, photos, location or health information
 
 ## Where it's stored and who can see it
 - It's stored with Supabase, a database service, in its **Canada (Central)** region.
+- To keep sign-ins secure, Supabase keeps technical logs of each sign-in, such as the IP address and device type. We don't use them to identify or track you.
 - **Only our team can see it, under your tester code.** The list that links codes to names is kept separately by the team. It's never stored in the app or the database.
 - Reminders are created on your phone, not sent from a server.
 - If you install through Apple's TestFlight, Apple may share crash reports, and any feedback you send through TestFlight, with us.

@@ -13,6 +13,8 @@
 
 import { DateTime, IANAZone } from 'luxon';
 
+import { en } from '../copy/en';
+
 const MINUTES_PER_DAY = 24 * 60;
 
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -63,10 +65,10 @@ export function localDateOf(instant: Date | string, tz: string): string {
 
 // '19:00' → '7:00 pm'. Plain string math instead of the phone's locale settings,
 // so it reads the same on every phone and matches the copy ("We'll nudge you at 7:00 pm.").
-// If the app is translated later, the am/pm words should move to src/copy.
+// The am/pm words live in src/copy/en.ts like all other words (CLAUDE.md rule 7).
 export function formatTime(time: string): string {
   const { hour, minute } = parseTime(time);
-  const suffix = hour < 12 ? 'am' : 'pm';
+  const suffix = hour < 12 ? en.time.am : en.time.pm;
   const hour12 = hour % 12 === 0 ? 12 : hour % 12;
   return `${hour12}:${pad2(minute)} ${suffix}`;
 }

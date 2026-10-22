@@ -2,10 +2,11 @@
 // "How did these go?", Start and Welcome back arrive in later milestones.
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Button, Heading, Notice, Screen, Title, colors } from '../components/ui';
 import { en, fill } from '../copy/en';
+import { toDataError, type DataErrorKind } from '../data/errors';
 import { fetchCheckInsSince, fetchTasksOnDates } from '../data/tasks';
 import type { Task } from '../data/types';
 import { askForReminders, remindersAllowed } from '../lib/notifications';
@@ -21,7 +22,9 @@ type Loaded = { today: Task[]; tomorrow: Task[]; activeDays: number; remindersOn
 export default function Today() {
   const { profile, flash, clearFlash } = useSession();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [failed, setFailed] = useState(false);
+  // null = loaded fine; otherwise why the last load failed.
+  const [failed, setFailed] = useState<DataErrorKind | null>(null);
+
   // Loads Today's data; returns a function that ignores the answer if the screen has moved on.
   const load = useCallback(() => {
     if (!profile) return () => undefined;
@@ -37,7 +40,7 @@ export default function Today() {
     ]).then(
       ([tasks, checkIns, remindersOn]) => {
         if (!active) return;
-        setFailed(false);
+        setFailed(null);
         setLoaded({
           today: tasks.filter((t) => t.plan_date === today),
           tomorrow: tasks.filter((t) => t.plan_date === tomorrow),
@@ -45,8 +48,8 @@ export default function Today() {
           remindersOn,
         });
       },
-      () => {
-        if (active) setFailed(true);
+      (error) => {
+        if (active) setFailed(toDataError(error).kind);
       },
     );
     return () => {
@@ -54,11 +57,19 @@ export default function Today() {
     };
   }, [profile]);
 
-  // Reload every time Today comes back into view (after planning, editing or deleting).
+  // Reload every time Today comes back into view (after planning, editing or deleting), and when
+  // the app returns to the foreground: the date may have changed, or reminders were turned on in Settings.
   useFocusEffect(
     useCallback(() => {
-      const cancel = load();
+      let cancel = load();
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state !== 'active') return;
+        cancel();
+        clearFlash();
+        cancel = load();
+      });
       return () => {
+        subscription.remove();
         cancel();
         clearFlash();
       };
@@ -81,7 +92,7 @@ export default function Today() {
   if (failed) {
     body = (
       <Notice action={<Button label={en.common.retry} kind="secondary" onPress={() => load()} />}>
-        {copy.loadFailed}
+        {failed === 'server' ? en.errors.server : copy.loadFailed}
       </Notice>
     );
   } else if (!loaded) {

@@ -6,11 +6,11 @@ import { en } from '../copy/en';
 import { useSession } from '../lib/session';
 
 export default function Offline() {
-  const { retry } = useSession();
+  const { retry, loadFailKind } = useSession();
   return (
     <Screen scroll={false}>
       <View style={styles.middle}>
-        <Body>{en.today.loadFailed}</Body>
+        <Body>{loadFailKind === 'server' ? en.errors.server : en.today.loadFailed}</Body>
       </View>
       <Button label={en.common.retry} onPress={retry} />
     </Screen>

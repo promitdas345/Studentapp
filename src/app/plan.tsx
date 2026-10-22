@@ -49,6 +49,7 @@ export default function Plan() {
   const [editing, setEditing] = useState<Task | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   const newEntry = (key: number, forDay: PlanDay): Entry => ({
     key,
@@ -80,16 +81,21 @@ export default function Plan() {
     return () => {
       active = false;
     };
-    // Runs once when the screen opens.
+    // Runs when the screen opens, and again after "Try again".
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadAttempt]);
 
   if (!profile) return null;
 
   const date = dateFor(day);
   const cap = dailyCap(profile.plan_hint, date);
   const others = (existing ?? []).filter((t) => t.plan_date === date && t.id !== editingId).length;
-  const maxEntries = editing ? 1 : slotsLeft(others, cap);
+  // An edited task keeps its place on its own day, but can only move to a day that has room.
+  const maxEntries = editing
+    ? date === editing.plan_date
+      ? 1
+      : Math.min(1, slotsLeft(others, cap))
+    : slotsLeft(others, cap);
   const atCap = others + entries.length >= cap;
   const capMessage = cap < 3 ? copy.twoToday : copy.threeIsPlenty;
   const placeholder = profile.hard_things.includes('starting')
@@ -174,10 +180,25 @@ export default function Plan() {
     ]);
   };
 
-  if (!existing && !problem) {
+  // Nothing can be planned until today's and tomorrow's tasks are loaded: the daily cap depends on them.
+  if (!existing) {
     return (
       <Screen>
-        <ActivityIndicator size="large" style={styles.spinner} />
+        {problem ? (
+          <>
+            <Notice>{problem}</Notice>
+            <Button
+              label={en.common.retry}
+              onPress={() => {
+                setProblem(null);
+                setLoadAttempt((n) => n + 1);
+              }}
+            />
+            <Button label={en.common.back} kind="quiet" onPress={() => router.back()} />
+          </>
+        ) : (
+          <ActivityIndicator size="large" style={styles.spinner} />
+        )}
       </Screen>
     );
   }
@@ -192,7 +213,7 @@ export default function Plan() {
 
       {maxEntries === 0 ? <Notice>{capMessage}</Notice> : null}
 
-      {entries.slice(0, Math.max(maxEntries, 0)).map((entry, index) => (
+      {(maxEntries === 0 ? [] : entries).map((entry, index) => (
         <View key={entry.key} style={styles.entry}>
           <Text style={styles.label}>{copy.whatLabel}</Text>
           <TextInput
