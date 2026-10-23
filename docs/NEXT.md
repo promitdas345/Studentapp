@@ -8,7 +8,7 @@ Rules for how to work are in `CLAUDE.md`. The why behind each choice is in `docs
 | Milestone (PLAN.md §1) | State |
 |---|---|
 | **M0 Setup** | **Done.** Promit saw "Hello from Supabase" on his Android in Expo Go (Oct 21). |
-| **M1 Data, onboarding, Today, Plan** | **Built, reviewed and fixed. Waiting for Promit's phone test.** |
+| **M1 Data, onboarding, Today, Plan** | **Built, reviewed and fixed. Database set up in the real project (Oct 23: migration run, security check 11 of 11 PASS). Waiting for Promit's phone test.** |
 | M2 Notifications, Start, timer, first development build | Not started. Planned Oct 25–27. |
 | M3 Check-in, fixes, safety | Not started. Planned Oct 28–30. |
 | M4 This week, Settings, delete, polish, privacy page | Not started. Planned Oct 31–Nov 2. |
@@ -20,13 +20,14 @@ What's in the repo for M1:
 - Data layer: `src/data/` (types, profile, tasks, errors). All words: `src/copy/en.ts`.
 - Database: `supabase/migrations/20261022000000_m1_core.sql` (one RLS policy per action, revoke-then-grant, profiles can't change tester_code/variant/consent). Self-check: `supabase/tests/rls_check.sql` (11 checks). Offline harness: `supabase/tests/pglite_check.mjs` (all 11 PASS).
 - An independent AI code review found 3 bugs and several small issues; all fixed (commit 71c7656).
+- Expo Go crash fix (Oct 23): the app imports `expo-notifications` through `src/lib/expoNotifications.ts`, one file at a time. Importing the package itself crashed Expo Go on Android with "Cannot find native module 'ExpoTopicSubscriptionModule'": its main file loads the push topic module, which Expo Go for SDK 57 leaves out (checked in Expo Go's source, `sdk-57` branch, `ExperiencePackagePicker.kt`). Still the same in expo-notifications 57.0.24 and 58.1.6.
 
 ## Next steps
 
 ### 1. Promit: finish the M1 phone test (on his Windows laptop, in `Desktop\student app business 3630\Studentapp`)
 1. `git restore package-lock.json` (only if `git pull` complains about it), then `git pull`, then `npm ci`. Always use `npm ci` after pulling, not `npm install` (Node 25's npm rewrites the lock file).
-2. Supabase → SQL Editor: run `supabase/migrations/20261022000000_m1_core.sql` **once**, then `supabase/tests/rls_check.sql`. Every row must say PASS.
-3. `npx expo start --clear`, open in Expo Go on his Android. Two yellow `expo-notifications` warnings about Expo Go are expected (push isn't used).
+2. Supabase → SQL Editor: run `supabase/migrations/20261022000000_m1_core.sql` **once**, then `supabase/tests/rls_check.sql`. Every row must say PASS. **Done Oct 23: all 11 PASS.**
+3. `npx expo start --clear`, open in Expo Go on his Android. There should be no red ERROR. (Before the Oct 23 fix, Expo Go on Android crashed with "Cannot find native module 'ExpoTopicSubscriptionModule'".)
 4. Checklist (PLAN.md §2 M1):
    - Onboarding (Welcome → What we collect → Setup → Reminders → Today) takes under 2 minutes. Supabase Table Editor → profiles shows the tester code, time zone `America/St_Johns`, consent version and 18+.
    - A teammate who has never seen it plans a task in under 30 seconds.
@@ -40,6 +41,7 @@ Before M2, read `docs/DOCS_CHECK.md` "For Milestone 2". Key points:
 - Move to a **development build** (EAS, `eas init` links the project to Promit's Expo org "promitdas's team"; he skipped creating a project on the website on purpose). Android dev build APK is free. Consider upgrading to SDK 58 at the same time (SDK 57 was chosen only because Expo Go runs 57).
 - Android: create the `reminders` channel before asking permission (already done in `src/lib/notifications.ts`). Exact alarms: measure lateness first (PLAN.md M2), log it in DECISIONS.md.
 - `src/lib/schedule.ts` must be pure with tests (TECH.md §6, §11), and `syncNotifications()` re-syncs on start, foreground and after every save.
+- While the app still runs in Expo Go, import new `expo-notifications` functions (scheduling, handler, listeners) through `src/lib/expoNotifications.ts`, never from `'expo-notifications'` (see the crash fix above). In a development build the package import works again, so that file can go then.
 - Check trigger types (`SchedulableTriggerInputTypes.DATE`/`DAILY`) against the installed `expo-notifications` types; the docs source didn't include the API reference.
 
 ## Open questions

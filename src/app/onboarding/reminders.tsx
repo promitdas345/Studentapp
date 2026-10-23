@@ -1,12 +1,12 @@
 // S4 Reminders: one screen saying why reminders matter, then the system prompt (PRODUCT.md S4).
 // If the student says no, the app still works and Today shows a "Reminders are off" banner.
-import * as Notifications from 'expo-notifications';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Body, Button, Screen, Title } from '../../components/ui';
 import { en } from '../../copy/en';
 import { track } from '../../lib/events';
+import * as Notifications from '../../lib/expoNotifications';
 import { ensureReminderChannel } from '../../lib/notifications';
 import { useSession } from '../../lib/session';
 
