@@ -9,7 +9,7 @@
 - An independent code review found 3 bugs (offline launch sent you to Welcome, edit could bypass the daily cap, Today didn't refresh on return) and smaller issues; all fixed.
 
 **Next: Promit tests on his phone** (steps in README.md):
-1. `git pull`, then `npm install` (new packages).
+1. `git restore package-lock.json` (only if `git pull` complains about it), `git pull`, then `npm ci` (new packages).
 2. Supabase SQL Editor: run `supabase/migrations/20261022000000_m1_core.sql` once, then `supabase/tests/rls_check.sql` (every row PASS).
 3. `npx expo start --clear`, scan with Expo Go. Two yellow `expo-notifications` warnings in Expo Go are expected.
 4. Checklist (PLAN.md §2 M1):

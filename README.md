@@ -38,7 +38,7 @@ You should see the **Welcome** screen ("When work piles up, it's easy to feel bu
 
 If the phone can't connect (common on campus or other public Wi-Fi), stop it with Ctrl+C and run `npx expo start --tunnel` instead. It's slower, but it works across networks. After changing `.env`, restart with `npx expo start --clear` so the new values are picked up.
 
-To get later changes: `git pull`, then `npm install`, then `npx expo start` again.
+To get later changes: `git pull`, then `npm ci`, then `npx expo start` again. `npm ci` installs exactly what `package-lock.json` lists and never changes that file. (`npm install` can rewrite it, and then the next `git pull` stops with "Your local changes … would be overwritten". If that happens, run `git restore package-lock.json` and pull again.)
 
 ## Checks to run before calling something done
 
