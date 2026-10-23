@@ -2,6 +2,8 @@
 
 Read this before every task. Product details are in `docs/`.
 
+**Start of every session: read `docs/NEXT.md`** (where we left off, what's next, open questions, tips for this environment). Update it before the session ends.
+
 ## The project in one paragraph
 
 A phone app that helps university students do the studying they planned. Each day the student plans 1–3 small tasks, gets a nudge at the start time and checks in afterwards. When they miss, the app helps fix tomorrow's plan instead of making them feel guilty. That fix after a miss is the product's edge, because planning apps (Shovel) already own the planning half. First users: MUN undergrads who feel overwhelmed when work piles up and have already tried a fix that didn't stick. It's a BUSI 3630 team project (Promit, Sam, Austin, Alex), and Promit plans to keep building it after the course.
@@ -61,6 +63,7 @@ Not in v1, even if it looks easy: due dates, syllabus import or Brightspace sync
 
 | File | What's in it |
 |---|---|
+| `docs/NEXT.md` | Where we left off and what's next. Read first. |
 | `docs/PRODUCT.md` | Screens, the loop, what's left out |
 | `docs/RULES.md` | Tone, reasons → fixes, how a fix is chosen, safety, every word the app shows |
 | `docs/TECH.md` | Stack, data model, notifications, builds, privacy checklist |
