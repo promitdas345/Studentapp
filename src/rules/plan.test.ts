@@ -8,12 +8,15 @@ import {
   dailyCap,
   defaultPlanDay,
   defaultStartTime,
+  encodePrefill,
   isTeamCode,
   normalizeTesterCode,
+  parsePrefill,
   shouldShowTitleTip,
   showPlanTomorrowButton,
   slotsLeft,
   validateTitle,
+  type PlanPrefill,
 } from './plan';
 
 // Newfoundland: UTC−2:30 until Sun Nov 1 2026, then UTC−3:30.
@@ -287,5 +290,54 @@ describe('isTeamCode', () => {
     expect(isTeamCode('FT07')).toBe(false);
     expect(isTeamCode('TEAM5')).toBe(false);
     expect(isTeamCode('')).toBe(false);
+  });
+});
+
+describe('parsePrefill: what a fix opens the Plan screen with', () => {
+  const good = {
+    title: 'First 10 min: Essay intro',
+    time: '19:00',
+    length: 10,
+    tip: 'phone_away',
+    cue: null,
+    ifThen: null,
+    fromFixEvent: 'fix1',
+    pickTime: false,
+    routineTime: false,
+  };
+
+  test('reads back what encodePrefill wrote', () => {
+    expect(parsePrefill(encodePrefill(good as PlanPrefill))).toEqual(good);
+  });
+
+  test('a missing time means the usual default; "Plan the rest" has no fix behind it', () => {
+    const rest = { ...good, title: 'Rest of: Essay intro', time: null, length: 25, tip: null, fromFixEvent: null };
+    expect(parsePrefill(JSON.stringify(rest))).toEqual(rest);
+  });
+
+  test('tidies the text it keeps', () => {
+    const tidy = parsePrefill(JSON.stringify({ ...good, title: '  Essay   intro ', cue: ' supper ', ifThen: '   ' }));
+    expect(tidy).toMatchObject({ title: 'Essay intro', cue: 'supper', ifThen: null });
+  });
+
+  test('refuses anything the database would refuse', () => {
+    const bad = (changes: Record<string, unknown>) => parsePrefill(JSON.stringify({ ...good, ...changes }));
+    expect(bad({ title: '' })).toBeNull();
+    expect(bad({ title: 'x'.repeat(81) })).toBeNull();
+    expect(bad({ time: '7pm' })).toBeNull();
+    expect(bad({ length: 15 })).toBeNull();
+    expect(bad({ tip: 'nap' })).toBeNull();
+    expect(bad({ cue: 'x'.repeat(61) })).toBeNull();
+    expect(bad({ ifThen: 'x'.repeat(161) })).toBeNull();
+    expect(bad({ fromFixEvent: 7 })).toBeNull();
+    expect(bad({ pickTime: 'yes' })).toBeNull();
+  });
+
+  test('refuses things that aren’t a prefill at all', () => {
+    expect(parsePrefill(undefined)).toBeNull();
+    expect(parsePrefill('')).toBeNull();
+    expect(parsePrefill('{not json')).toBeNull();
+    expect(parsePrefill('null')).toBeNull();
+    expect(parsePrefill(['a'])).toBeNull();
   });
 });

@@ -1,5 +1,7 @@
 // S6 Plan: add up to 3 tasks for today or tomorrow, or edit/delete one (PRODUCT.md S6).
 // Must take under 30 seconds: the title is the only thing that has to be typed.
+// A fix or "Plan the rest" opens it prefilled (?prefill=…): the first task starts filled in, and
+// what the fix set (tip, routine cue, if-then plan, the card it came from) is saved with it.
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -9,7 +11,7 @@ import { Body, Button, Chip, Gap, Notice, Row, Screen, Title, colors } from '../
 import { en, fill } from '../copy/en';
 import { toDataError } from '../data/errors';
 import { deleteTask, fetchTasksOnDates, insertTasks, updateTask } from '../data/tasks';
-import type { Task } from '../data/types';
+import type { NewTask, Task } from '../data/types';
 import { lastStartTime, rememberStartTime } from '../lib/flags';
 import { syncNotifications } from '../lib/notifications';
 import { useSession } from '../lib/session';
@@ -21,6 +23,7 @@ import {
   dailyCap,
   defaultPlanDay,
   defaultStartTime,
+  parsePrefill,
   shouldShowTitleTip,
   slotsLeft,
   validateTitle,
@@ -34,8 +37,9 @@ type Entry = { key: number; title: string; time: string; length: number };
 
 export default function Plan() {
   const { profile, showFlash } = useSession();
-  const params = useLocalSearchParams<{ day?: string; taskId?: string }>();
+  const params = useLocalSearchParams<{ day?: string; taskId?: string; prefill?: string }>();
   const editingId = typeof params.taskId === 'string' ? params.taskId : null;
+  const prefill = useMemo(() => (editingId ? null : parsePrefill(params.prefill)), [editingId, params.prefill]);
 
   const tz = profile?.timezone ?? 'America/St_Johns';
   const now = useMemo(() => new Date(), []);
@@ -71,6 +75,9 @@ export default function Plan() {
           setEditing(task);
           setDay(task.plan_date === todayDate ? 'today' : 'tomorrow');
           setEntries([{ key: 0, title: task.title, time: localTimeOf(task.start_at, tz), length: task.duration_min }]);
+        } else if (prefill) {
+          const blank = newEntry(0, day);
+          setEntries([{ ...blank, title: prefill.title, time: prefill.time ?? blank.time, length: prefill.length }]);
         } else {
           setEntries([newEntry(0, day)]);
         }
@@ -99,6 +106,7 @@ export default function Plan() {
     : slotsLeft(others, cap);
   const atCap = others + entries.length >= cap;
   const capMessage = cap < 3 ? copy.twoToday : copy.threeIsPlenty;
+  const routineTime = Boolean(prefill?.routineTime);
   const placeholder = profile.hard_things.includes('starting')
     ? copy.whatPlaceholderStarting
     : copy.whatPlaceholder;
@@ -148,8 +156,20 @@ export default function Plan() {
         await updateTask(editing.id, rows[0]);
       } else {
         // "Getting distracted" makes new tasks carry the phone tip (RULES.md §5.1).
-        const tip = profile.hard_things.includes('distraction') ? ('phone_away' as const) : undefined;
-        await insertTasks(rows.map((row) => (tip ? { ...row, tip } : row)));
+        const tip: NewTask['tip'] = profile.hard_things.includes('distraction') ? 'phone_away' : undefined;
+        await insertTasks(
+          rows.map((row, i): NewTask => {
+            // What the fix set goes on the task it prefilled (the first one).
+            if (!prefill || entries[i].key !== 0) return tip ? { ...row, tip } : row;
+            return {
+              ...row,
+              tip: prefill.tip ?? tip ?? null,
+              cue: prefill.cue,
+              if_then: prefill.ifThen,
+              from_fix_event: prefill.fromFixEvent,
+            };
+          }),
+        );
       }
       const earliest = [...entries].sort((a, b) => a.time.localeCompare(b.time))[0].time;
       rememberStartTime(entries[entries.length - 1].time);
@@ -214,7 +234,11 @@ export default function Plan() {
         <Chip label={copy.dayTomorrow} selected={day === 'tomorrow'} onPress={() => switchDay('tomorrow')} />
       </Row>
 
+      {prefill?.fromFixEvent && entries[0] ? (
+        <Notice>{fill(copy.fromFix, { time: formatTime(entries[0].time) })}</Notice>
+      ) : null}
       {maxEntries === 0 ? <Notice>{capMessage}</Notice> : null}
+      {profile.plan_hint?.double && profile.plan_hint.for_date === date ? <Body muted>{copy.doubleTip}</Body> : null}
 
       {(maxEntries === 0 ? [] : entries).map((entry, index) => (
         <View key={entry.key} style={styles.entry}>
@@ -233,11 +257,12 @@ export default function Plan() {
             <Body muted>{copy.titleTip}</Body>
           ) : null}
 
-          <Text style={styles.label}>{copy.whenLabel}</Text>
+          <Text style={styles.label}>{routineTime && entry.key === 0 ? en.fix.routineTime : copy.whenLabel}</Text>
           <TimeField
             value={entry.time}
             accessibilityLabel={copy.whenLabel}
             onChange={(time) => update(entry.key, { time })}
+            openAtStart={entry.key === 0 && Boolean(prefill?.pickTime || prefill?.routineTime)}
           />
 
           <Text style={styles.label}>{copy.howLongLabel}</Text>

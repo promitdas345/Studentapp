@@ -76,9 +76,8 @@ export default function Timer() {
   }
 
   const left = timerLeftMs(task.started_at ?? task.start_at, task.duration_min, now);
-  // Both buttons open the check-in (PRODUCT.md S8). "I'm done" answers Done there right away.
-  const checkIn = (answer?: 'done') =>
-    router.replace({ pathname: '/checkin/[taskId]', params: answer ? { taskId: task.id, answer } : { taskId: task.id } });
+  // Both buttons open the check-in (PRODUCT.md S8), which asks how it went.
+  const checkIn = () => router.replace({ pathname: '/checkin/[taskId]', params: { taskId: task.id } });
 
   return (
     <Screen scroll={false}>
@@ -88,8 +87,8 @@ export default function Timer() {
         </Text>
         <Text style={styles.taskTitle}>{task.title}</Text>
       </View>
-      <Button label={copy.done} onPress={() => checkIn('done')} />
-      <Button label={copy.stop} kind="secondary" onPress={() => checkIn()} />
+      <Button label={copy.done} onPress={checkIn} />
+      <Button label={copy.stop} kind="secondary" onPress={checkIn} />
     </Screen>
   );
 }

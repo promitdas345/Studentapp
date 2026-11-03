@@ -3,7 +3,8 @@
 // the fix. Pure: no network, no clock reads, no React or Expo.
 
 import { en } from '../copy/en';
-import type { MissReason, Tip } from '../data/types';
+import type { MissReason, PlanHintValue, Tip } from '../data/types';
+import { localTimeOf } from '../lib/time';
 
 export type FixId =
   | 'too_big_1'
@@ -102,4 +103,44 @@ export function prefixedTitle(prefix: string, title: string, max = 80): string {
   const room = max - Array.from(prefix).length;
   const fitted = base.length <= room ? base.join('') : `${base.slice(0, room - 1).join('').trimEnd()}…`;
   return `${prefix}${fitted}`;
+}
+
+// What the Plan screen opens with after a fix's main button ("Reschedule", RULES.md §3): tomorrow,
+// at the missed task's start time, with the fix's changes. The student can change any of it.
+export type Reschedule = {
+  title: string;
+  // Local clock time, 'HH:mm'.
+  time: string;
+  length: number;
+  tip: Tip | null;
+  // "Try a better time": the time picker opens straight away.
+  pickTime: boolean;
+};
+
+export function rescheduleFor(
+  fixId: FixId,
+  missed: { title: string; start_at: string; duration_min: number; tip: Tip | null },
+  tz: string,
+): Reschedule {
+  const fix = FIXES[fixId];
+  let title = missed.title;
+  if (fix.title === 'first_10') title = prefixedTitle(en.titlePrefixes.first10, missed.title);
+  if (fix.title === 'just_open') title = prefixedTitle(en.titlePrefixes.justOpen, missed.title);
+  const length = fix.length === 'double' ? doubledLength(missed.duration_min) : (fix.length ?? missed.duration_min);
+  return {
+    title,
+    time: localTimeOf(missed.start_at, tz),
+    length,
+    tip: fix.tip ?? missed.tip,
+    pickTime: fix.asks === 'time',
+  };
+}
+
+// profiles.plan_hint after "Plan fewer" (a cap of 2) or "Give it more time" (the double-time tip),
+// for tomorrow only. null for fixes that don't set one: the profile's hint is then left alone.
+export function planHintFor(fixId: FixId, tomorrow: string): PlanHintValue {
+  const hint = FIXES[fixId].planHint;
+  if (hint === 'cap') return { cap: 2, for_date: tomorrow };
+  if (hint === 'double') return { double: true, for_date: tomorrow };
+  return null;
 }

@@ -120,6 +120,10 @@ export const en = {
     twoToday: 'Two today. A lighter plan is easier to finish.',
     save: 'Save',
     saved: 'You’re set. We’ll nudge you at {time}.',
+    // When a fix opens Plan for tomorrow (RULES §8 S6).
+    fromFix: 'We’ll plan it for tomorrow at {time}. You can change it.',
+    // On the day after "Give it more time" (RULES §8 S6).
+    doubleTip: 'Tip: give it about twice the time you’d guess.',
     delete: 'Delete',
     deleteConfirmTitle: 'Delete this plan?',
     deleteConfirmKeep: 'Keep it',
@@ -149,6 +153,125 @@ export const en = {
     timeUp: 'Time’s up',
     done: 'I’m done',
     stop: 'Stop',
+  },
+
+  // S9 Check-in (RULES §2, §8)
+  checkin: {
+    question: 'Did you get to it?',
+    done: 'Done',
+    partly: 'Partly',
+    notYet: 'Not yet',
+    // One of these after Done, in turn.
+    doneLines: ['Nice. That’s one done.', 'Done. Nice work.', 'That’s done. One less thing.'],
+    fixWorked: 'That fix worked. Saved to What works for me.',
+    partlyLine: 'Some is way better than none.',
+    planRest: 'Plan the rest',
+    doneForNow: 'Done for now',
+    notYetLine: 'No problem. What got in the way?',
+    reasons: {
+      too_big: 'It felt too big',
+      forgot: 'I forgot',
+      distracted: 'I got distracted',
+      tired: 'I was too tired',
+      out_of_time: 'I ran out of time',
+      other: 'Something else',
+    },
+    notePlaceholder: 'Want to say more? (optional)',
+    next: 'Next',
+  },
+
+  // S10 Fix (RULES §3, §8). One card per fix: title, body, main button.
+  fix: {
+    title: 'Let’s adjust.',
+    tryElse: 'Try something else',
+    ownPlan: 'Make my own plan',
+    notNow: 'Not now',
+    workedBefore: 'This worked for you before.',
+    cards: {
+      too_big_1: {
+        title: 'Shrink it',
+        body: 'Big tasks are hard to start. Plan just the first 10 minutes. That counts.',
+        button: 'Plan the first 10 minutes',
+      },
+      too_big_2: {
+        title: 'Make it tiny',
+        body: 'Pick the smallest step there is, like just opening your notes. Stopping after 5 minutes is fine.',
+        button: 'Plan a 5-minute start',
+      },
+      forgot_1: {
+        title: 'Get a heads-up',
+        body: 'We’ll remind you 10 minutes before, and once more if you haven’t started.',
+        button: 'Turn on extra reminders',
+      },
+      forgot_2: {
+        title: 'Tie it to a routine',
+        body: 'Link it to something you already do, like right after supper or when you get home from class.',
+        button: 'Pick a routine',
+      },
+      distracted_1: {
+        title: 'Phone out of reach',
+        body: 'Put your phone in another room or in your bag for this one. A student we talked to says that’s what works for him.',
+        button: 'Try it next time',
+      },
+      distracted_2: {
+        title: 'Block it, or move',
+        body: 'Turn on your phone’s Focus mode or a site blocker for the session, or study somewhere new, like the library.',
+        button: 'Try it next time',
+      },
+      tired_1: {
+        title: 'Try a better time',
+        body: 'Move it to a time when you usually have more energy.',
+        button: 'Pick a new time',
+      },
+      tired_2: {
+        title: 'Go shorter',
+        body: 'Make it a 10-minute session. Short sessions still count.',
+        button: 'Make it 10 minutes',
+      },
+      out_of_time_1: {
+        title: 'Plan fewer',
+        body: 'Tomorrow, try 1 or 2 things instead of 3. A lighter plan is easier to finish.',
+        button: 'Plan a lighter day',
+      },
+      out_of_time_2: {
+        title: 'Give it more time',
+        body: 'Most people underestimate how long tasks take. Try about twice your first guess.',
+        button: 'Double the time',
+      },
+      if_then: {
+        title: 'Make your own plan',
+        body: 'Plans like “if this happens, then I’ll do that” help people follow through. Fill in yours:',
+        button: 'Save my plan',
+      },
+    },
+    // Added to "Try a better time" once there are 5+ answered check-ins (RULES §4.4).
+    bestTime: 'You finish the most {when}.',
+    dayParts: {
+      morning: 'in the morning',
+      afternoon: 'in the afternoon',
+      evening: 'in the evening',
+      night: 'at night',
+    },
+    // The if-then builder: "If ___, then I'll ___."
+    ifLabel: 'If',
+    thenLabel: 'then I’ll',
+    ifThenTemplate: 'If {if}, then I’ll {then}.',
+    ifThenExamples: [
+      { if: 'it’s 7 pm and I’m on my phone', then: 'start a 25-minute timer' },
+      { if: 'I get home from class', then: 'open my notes right away' },
+      { if: 'I feel stuck', then: 'do just one question' },
+    ],
+    // "Tie it to a routine": each one becomes the nudge's "After {cue} — time to start."
+    routines: [
+      { label: 'After supper', cue: 'supper' },
+      { label: 'After my last class', cue: 'my last class' },
+      { label: 'When I get home', cue: 'I get home' },
+      { label: 'After lunch', cue: 'lunch' },
+    ],
+    customRoutine: 'Something else',
+    customRoutineLabel: 'After…',
+    customRoutinePlaceholder: 'e.g. the gym',
+    routineTime: 'About what time is that?',
   },
 
   // Notification text (RULES §7). {title} is the task's title, {length} its minutes.

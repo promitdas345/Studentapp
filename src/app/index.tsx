@@ -1,5 +1,5 @@
-// S5 Today (home): today's tasks, the plan buttons, this week's days vs goal (PRODUCT.md S5).
-// "How did these go?", Start and Welcome back arrive in later milestones.
+// S5 Today (home): late check-ins ("How did these go?"), today's tasks, the plan buttons and this
+// week's days vs goal (PRODUCT.md S5). Welcome back arrives with Milestone 4.
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, AppState, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -7,8 +7,9 @@ import { ActivityIndicator, AppState, Pressable, StyleSheet, Text, View } from '
 import { Body, Button, Heading, Notice, Screen, Title, colors } from '../components/ui';
 import { en, fill } from '../copy/en';
 import { toDataError, type DataErrorKind } from '../data/errors';
-import { fetchCheckInsSince, fetchTasksOnDates } from '../data/tasks';
+import { fetchCheckInsSince, fetchTasksOnDates, markUnansweredBefore } from '../data/tasks';
 import type { Task } from '../data/types';
+import { devWarn } from '../lib/devLog';
 import { askForReminders, remindersAllowed, syncNotifications } from '../lib/notifications';
 import { useSession } from '../lib/session';
 import { addDays, formatTime, localDate, localTimeOf, toInstant, weekStart } from '../lib/time';
@@ -18,7 +19,11 @@ import { cardAction } from '../rules/start';
 
 const copy = en.today;
 
-type Loaded = { today: Task[]; tomorrow: Task[]; activeDays: number; remindersOn: boolean };
+// Unanswered tasks from the last 3 days can still be checked in; older ones become `unanswered`
+// (PRODUCT.md S5).
+const LATE_DAYS = 3;
+
+type Loaded = { late: Task[]; today: Task[]; tomorrow: Task[]; activeDays: number; remindersOn: boolean };
 
 export default function Today() {
   const { profile, flash, clearFlash } = useSession();
@@ -34,8 +39,11 @@ export default function Today() {
     const tz = profile.timezone;
     const today = localDate(now, tz);
     const tomorrow = addDays(today, 1);
+    const firstLateDay = addDays(today, -LATE_DAYS);
+    markUnansweredBefore(firstLateDay).catch((error) => devWarn('today: unanswered', error));
+    const lateDays = Array.from({ length: LATE_DAYS }, (_, i) => addDays(firstLateDay, i));
     Promise.all([
-      fetchTasksOnDates([today, tomorrow]),
+      fetchTasksOnDates([...lateDays, today, tomorrow]),
       fetchCheckInsSince(toInstant(weekStart(now, tz), '00:00', tz).toISOString()),
       remindersAllowed(),
     ]).then(
@@ -43,6 +51,9 @@ export default function Today() {
         if (!active) return;
         setFailed(null);
         setLoaded({
+          late: tasks.filter(
+            (t) => t.plan_date < today && (t.status === 'planned' || t.status === 'started'),
+          ),
           today: tasks.filter((t) => t.plan_date === today),
           tomorrow: tasks.filter((t) => t.plan_date === tomorrow),
           activeDays: activeDaysThisWeek(checkIns, now, tz),
@@ -110,6 +121,15 @@ export default function Today() {
           </Notice>
         ) : null}
 
+        {loaded.late.length > 0 ? (
+          <>
+            <Heading>{copy.howDidTheseGo}</Heading>
+            {loaded.late.map((task) => (
+              <TaskCard key={task.id} task={task} tz={tz} now={now} late />
+            ))}
+          </>
+        ) : null}
+
         {loaded.today.length === 0 ? (
           <Body>{copy.empty}</Body>
         ) : (
@@ -154,9 +174,10 @@ export default function Today() {
 }
 
 // Tapping the card opens Start, the timer or the check-in, depending on where the task is
-// (PRODUCT.md S7). Only a task that hasn't started yet can be edited.
-function TaskCard({ task, tz, now }: { task: Task; tz: string; now: Date }) {
-  const action = cardAction(task, now);
+// (PRODUCT.md S7). A late one (from an earlier day) always opens its check-in. Only a task that
+// hasn't started yet, today or tomorrow, can be edited.
+function TaskCard({ task, tz, now, late = false }: { task: Task; tz: string; now: Date; late?: boolean }) {
+  const action = late ? 'checkin' : cardAction(task, now);
   const open = () => {
     const params = { taskId: task.id };
     if (action === 'start') router.push({ pathname: '/start/[taskId]', params });
@@ -176,7 +197,7 @@ function TaskCard({ task, tz, now }: { task: Task; tz: string; now: Date }) {
         </Text>
         <Text style={styles.cardStatus}>{copy.status[task.status]}</Text>
       </View>
-      {task.status === 'planned' ? (
+      {task.status === 'planned' && !late ? (
         <Button
           label={copy.edit}
           kind="quiet"

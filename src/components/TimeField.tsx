@@ -1,6 +1,7 @@
 // A tappable clock time ('HH:mm'). Android opens the system time dialog through the imperative API,
 // which the picker's README recommends for Android; iOS shows the compact inline picker.
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
+import { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, Text } from 'react-native';
 
 import { formatTime } from '../lib/time';
@@ -22,11 +23,29 @@ export function TimeField({
   value,
   onChange,
   accessibilityLabel,
+  openAtStart = false,
 }: {
   value: string;
   onChange: (time: string) => void;
   accessibilityLabel: string;
+  // "Try a better time" opens the picker straight away (RULES.md §3). Android only: the iOS
+  // picker is already on screen.
+  openAtStart?: boolean;
 }) {
+  const openAndroidPicker = () =>
+    DateTimePickerAndroid.open({
+      value: toPickerDate(value),
+      mode: 'time',
+      is24Hour: false,
+      onValueChange: (_event, date) => onChange(fromPickerDate(date)),
+    });
+
+  useEffect(() => {
+    if (openAtStart && Platform.OS === 'android') openAndroidPicker();
+    // Only when the field first appears.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (Platform.OS === 'ios') {
     return (
       <DateTimePicker
@@ -42,14 +61,7 @@ export function TimeField({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      onPress={() =>
-        DateTimePickerAndroid.open({
-          value: toPickerDate(value),
-          mode: 'time',
-          is24Hour: false,
-          onValueChange: (_event, date) => onChange(fromPickerDate(date)),
-        })
-      }
+      onPress={openAndroidPicker}
       style={({ pressed }) => [styles.field, pressed && styles.pressed]}>
       <Text style={styles.text}>{formatTime(value)}</Text>
     </Pressable>

@@ -7,6 +7,7 @@
 // No user-facing words here (CLAUDE.md rule 7): problems come back as codes, and the screen
 // picks the words from src/copy/en.ts.
 
+import type { Tip } from '../data/types';
 import { isBefore, nextHalfHour } from '../lib/time';
 
 // "Pick 1–3 small things" (DECISIONS.md kit defaults). A fix can lower it to 2 for one day.
@@ -131,6 +132,79 @@ export function normalizeTesterCode(raw: string): string | null {
 export function isTeamCode(code: string): boolean {
   const clean = normalizeTesterCode(code);
   return clean !== null && TEAM_CODE_PATTERN.test(clean);
+}
+
+// What a fix's main button or "Plan the rest" opens the Plan screen with (RULES.md §3, PRODUCT.md S9),
+// passed as one JSON route param. The student can change any of it before saving.
+export type PlanPrefill = {
+  title: string;
+  // Local 'HH:mm', or null for the Plan screen's usual default start time.
+  time: string | null;
+  length: number;
+  tip: Tip | null;
+  cue: string | null;
+  ifThen: string | null;
+  // The fix card this plan comes from; saved on the task as from_fix_event.
+  fromFixEvent: string | null;
+  // "Try a better time": open the time picker straight away.
+  pickTime: boolean;
+  // "Tie it to a routine": ask "About what time is that?" and open the time picker.
+  routineTime: boolean;
+};
+
+// The database limits (tasks.cue, tasks.if_then).
+export const CUE_MAX = 60;
+export const IF_THEN_MAX = 160;
+
+export function encodePrefill(prefill: PlanPrefill): string {
+  return JSON.stringify(prefill);
+}
+
+// Reads a prefill back from the route, or null if anything about it is off, so a bad link opens a
+// blank Plan screen instead of saving something the database would refuse.
+export function parsePrefill(raw: unknown): PlanPrefill | null {
+  if (typeof raw !== 'string' || raw.length === 0) return null;
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof value !== 'object' || value === null) return null;
+  const v = value as Record<string, unknown>;
+
+  const title = typeof v.title === 'string' ? validateTitle(v.title) : null;
+  if (!title?.ok) return null;
+  const time = v.time === null ? null : cleanTime(typeof v.time === 'string' ? v.time : null);
+  if (v.time !== null && time === null) return null;
+  if (typeof v.length !== 'number' || !(ALL_LENGTHS as readonly number[]).includes(v.length)) return null;
+  if (v.tip !== null && v.tip !== 'phone_away' && v.tip !== 'focus_or_move') return null;
+  const cue = optionalText(v.cue, CUE_MAX);
+  const ifThen = optionalText(v.ifThen, IF_THEN_MAX);
+  if (cue === undefined || ifThen === undefined) return null;
+  if (v.fromFixEvent !== null && typeof v.fromFixEvent !== 'string') return null;
+  if (typeof v.pickTime !== 'boolean' || typeof v.routineTime !== 'boolean') return null;
+
+  return {
+    title: title.title,
+    time,
+    length: v.length,
+    tip: v.tip,
+    cue,
+    ifThen,
+    fromFixEvent: v.fromFixEvent,
+    pickTime: v.pickTime,
+    routineTime: v.routineTime,
+  };
+}
+
+// null stays null; text is trimmed and must fit; anything else is undefined (refused).
+function optionalText(value: unknown, max: number): string | null | undefined {
+  if (value === null) return null;
+  if (typeof value !== 'string') return undefined;
+  const text = value.trim().replace(/\s+/g, ' ');
+  if (text.length === 0) return null;
+  return characterCount(text) <= max ? text : undefined;
 }
 
 // Counts characters the way Postgres char_length does (one per Unicode code point).
