@@ -1,6 +1,7 @@
 // Turns a failed Supabase call into one of the two messages the app shows (RULES.md §8 "Errors").
 // A PostgREST/Postgres error has a code, so the server answered and something went wrong there.
 // Anything else (no code) means the request never got an answer: usually no internet.
+import { en } from '../copy/en';
 
 export type DataErrorKind = 'network' | 'server';
 
@@ -31,4 +32,13 @@ export function toDataError(error: unknown): DataError {
   return typeof code === 'string' && code.length > 0
     ? new DataError('server', message, code)
     : new DataError('network', message);
+}
+
+// The words for a failed save or load (RULES.md §8 "Errors"), so every screen says the same thing.
+export function saveProblem(error: unknown): string {
+  return toDataError(error).kind === 'network' ? en.errors.saveFailed : en.errors.server;
+}
+
+export function loadProblem(error: unknown): string {
+  return toDataError(error).kind === 'network' ? en.today.loadFailed : en.errors.server;
 }

@@ -35,10 +35,25 @@ export async function insertTasks(rows: NewTask[]): Promise<Task[]> {
   return (data ?? []) as Task[];
 }
 
-export async function updateTask(
-  id: string,
-  changes: Partial<Pick<Task, 'plan_date' | 'title' | 'start_at' | 'duration_min'>>,
-): Promise<Task> {
+// The columns the app changes after a task is planned: editing (S6), Start and "In 10 min" (S7)
+// and the check-in (S9). user_id and the timestamps are never sent.
+export type TaskChanges = Partial<
+  Pick<
+    Task,
+    | 'plan_date'
+    | 'title'
+    | 'start_at'
+    | 'duration_min'
+    | 'status'
+    | 'reason'
+    | 'reason_note'
+    | 'started_at'
+    | 'checked_in_at'
+    | 'snoozed'
+  >
+>;
+
+export async function updateTask(id: string, changes: TaskChanges): Promise<Task> {
   const { data, error } = await getSupabase()
     .from('tasks')
     .update(changes)

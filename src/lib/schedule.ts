@@ -167,13 +167,17 @@ function nudgesFor(task: ScheduleTask, profile: ScheduleProfile): Planned[] {
 // "{title} · {length} min", plus one more line when there's something to remind them of.
 function startBody(task: ScheduleTask, hardThings: HardThing[]): string {
   const first = fill(copy.startBody, { title: task.title, length: task.duration_min });
-  const second = secondLine(task, hardThings);
+  const second = nudgeLine(task, hardThings);
   return second ? `${first}\n${second}` : first;
 }
 
-// The student's own if-then plan comes first, then their routine cue, then the tip a fix set,
-// then the "Getting started" line (RULES.md §5.1, §7). Blank text counts as none.
-function secondLine(task: ScheduleTask, hardThings: HardThing[]): string | null {
+// The start nudge's second line, also shown on the Start screen. The student's own if-then plan
+// comes first, then their routine cue, then the tip a fix set, then the "Getting started" line
+// (RULES.md §5.1, §7). Blank text counts as none.
+export function nudgeLine(
+  task: Pick<ScheduleTask, 'if_then' | 'cue' | 'tip'>,
+  hardThings: HardThing[],
+): string | null {
   const ifThen = task.if_then?.trim();
   if (ifThen) return ifThen;
   const cue = task.cue?.trim();

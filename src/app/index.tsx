@@ -2,7 +2,7 @@
 // "How did these go?", Start and Welcome back arrive in later milestones.
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, AppState, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, AppState, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Body, Button, Heading, Notice, Screen, Title, colors } from '../components/ui';
 import { en, fill } from '../copy/en';
@@ -14,6 +14,7 @@ import { useSession } from '../lib/session';
 import { addDays, formatTime, localDate, localTimeOf, toInstant, weekStart } from '../lib/time';
 import { activeDaysThisWeek, effectiveWeeklyGoal } from '../rules/insights';
 import { dailyCap, showPlanTomorrowButton, slotsLeft } from '../rules/plan';
+import { cardAction } from '../rules/start';
 
 const copy = en.today;
 
@@ -112,7 +113,7 @@ export default function Today() {
         {loaded.today.length === 0 ? (
           <Body>{copy.empty}</Body>
         ) : (
-          loaded.today.map((task) => <TaskCard key={task.id} task={task} tz={tz} />)
+          loaded.today.map((task) => <TaskCard key={task.id} task={task} tz={tz} now={now} />)
         )}
 
         {!todayFull && !planTomorrow ? (
@@ -133,7 +134,7 @@ export default function Today() {
           <>
             <Heading>{copy.tomorrowSection}</Heading>
             {loaded.tomorrow.map((task) => (
-              <TaskCard key={task.id} task={task} tz={tz} />
+              <TaskCard key={task.id} task={task} tz={tz} now={now} />
             ))}
           </>
         ) : null}
@@ -152,9 +153,22 @@ export default function Today() {
   );
 }
 
-function TaskCard({ task, tz }: { task: Task; tz: string }) {
+// Tapping the card opens Start, the timer or the check-in, depending on where the task is
+// (PRODUCT.md S7). Only a task that hasn't started yet can be edited.
+function TaskCard({ task, tz, now }: { task: Task; tz: string; now: Date }) {
+  const action = cardAction(task, now);
+  const open = () => {
+    const params = { taskId: task.id };
+    if (action === 'start') router.push({ pathname: '/start/[taskId]', params });
+    if (action === 'timer') router.push({ pathname: '/timer/[taskId]', params });
+    if (action === 'checkin') router.push({ pathname: '/checkin/[taskId]', params });
+  };
   return (
-    <View style={styles.card}>
+    <Pressable
+      onPress={open}
+      disabled={action === 'none'}
+      accessibilityRole={action === 'none' ? undefined : 'button'}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <View style={styles.cardText}>
         <Text style={styles.cardTitle}>{task.title}</Text>
         <Text style={styles.cardMeta}>
@@ -162,12 +176,14 @@ function TaskCard({ task, tz }: { task: Task; tz: string }) {
         </Text>
         <Text style={styles.cardStatus}>{copy.status[task.status]}</Text>
       </View>
-      <Button
-        label={copy.edit}
-        kind="quiet"
-        onPress={() => router.push({ pathname: '/plan', params: { taskId: task.id } })}
-      />
-    </View>
+      {task.status === 'planned' ? (
+        <Button
+          label={copy.edit}
+          kind="quiet"
+          onPress={() => router.push({ pathname: '/plan', params: { taskId: task.id } })}
+        />
+      ) : null}
+    </Pressable>
   );
 }
 
@@ -200,6 +216,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text },
   cardMeta: { fontSize: 16, color: colors.muted },
   cardStatus: { fontSize: 15, color: colors.primary, fontWeight: '600' },
+  pressed: { opacity: 0.7 },
   week: { marginTop: 12, gap: 8 },
   weekText: { fontSize: 17, color: colors.text },
   dots: { flexDirection: 'row', gap: 8 },

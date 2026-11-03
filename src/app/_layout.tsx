@@ -156,6 +156,8 @@ function RootNavigator() {
       <Stack.Protected guard={status === 'ready'}>
         <Stack.Screen name="index" />
         <Stack.Screen name="plan" />
+        <Stack.Screen name="start/[taskId]" />
+        <Stack.Screen name="timer/[taskId]" />
       </Stack.Protected>
       {/* Support is always reachable (PRODUCT.md S13). */}
       <Stack.Screen name="support" />

@@ -125,6 +125,25 @@ export const en = {
     deleteConfirmKeep: 'Keep it',
   },
 
+  // S7 Start (RULES §8)
+  start: {
+    startingNow: 'Starting now?',
+    startNow: 'Start now?',
+    start: 'Start',
+    snooze: 'In 10 min',
+    notToday: 'Not today',
+    // With "Losing track of time" (RULES §5.1)
+    timeUpHint: 'We’ll tell you when time’s up.',
+  },
+
+  // S8 Focus timer (RULES §8)
+  timer: {
+    left: '{time} left',
+    timeUp: 'Time’s up',
+    done: 'I’m done',
+    stop: 'Stop',
+  },
+
   // Notification text (RULES §7). {title} is the task's title, {length} its minutes.
   notifications: {
     planTodayTitle: 'Plan today?',
