@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Body, Button, Screen, Title } from '../../components/ui';
 import { en } from '../../copy/en';
+import { devWarn } from '../../lib/devLog';
 import { track } from '../../lib/events';
 import * as Notifications from '../../lib/expoNotifications';
 import { ensureReminderChannel } from '../../lib/notifications';
@@ -19,11 +20,13 @@ export default function Reminders() {
   const turnOn = async () => {
     setAsking(true);
     try {
-      await ensureReminderChannel();
+      // A failed channel must not stop the prompt (it only hides it on some Android phones).
+      await ensureReminderChannel().catch((error) => devWarn('reminders: channel', error));
       const result = await Notifications.requestPermissionsAsync();
       track('notification_permission', { granted: result.granted });
-    } catch {
+    } catch (error) {
       // If asking fails, carry on: Today shows the "Reminders are off" banner with a button.
+      devWarn('reminders: ask', error);
     } finally {
       setAsking(false);
       finishOnboarding();
