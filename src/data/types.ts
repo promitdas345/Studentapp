@@ -77,3 +77,22 @@ export type Task = {
 
 export type NewTask = Pick<Task, 'plan_date' | 'title' | 'start_at' | 'duration_min'> &
   Partial<Pick<Task, 'tip' | 'cue' | 'if_then' | 'from_fix_event'>>;
+
+// fix_events.choice (TECH.md §4): the main button, "Try something else", "Not now",
+// or "Make my own plan" from this card.
+export type FixChoice = 'used' | 'other' | 'dismissed' | 'own_plan';
+
+export type FixOutcome = 'worked' | 'not_worked';
+
+// One row per fix card shown (TECH.md §4).
+export type FixEvent = {
+  id: string;
+  user_id: string;
+  task_id: string;
+  reason: MissReason;
+  fix_id: string;
+  choice: FixChoice | null;
+  outcome: FixOutcome | null;
+  outcome_task_id: string | null;
+  created_at: string;
+};

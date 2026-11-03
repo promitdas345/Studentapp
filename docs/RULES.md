@@ -70,6 +70,8 @@ When a check-in is answered, look at this user's `fix_events` with choice `used`
 
 Also set `outcome_task_id`. Fix events with no qualifying check-in within 3 days stay empty (unknown). `dismissed` and `other` choices never get an outcome.
 
+**Default since Nov 3, 2026 (proposed in the first build session, waiting for Promit's OK):** only the task the fix created counts, the one whose `from_fix_event` points at the fix event. A later task that has nothing to do with the fix can't make it look like it worked, so the "fix worked" rate isn't inflated. Everything else above still applies. Code: `src/rules/outcomes.ts`.
+
 ### 4.3 Unit tests that must pass
 
 1. First `too_big` → `too_big_1`.

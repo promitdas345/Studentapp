@@ -125,6 +125,13 @@ export const en = {
     deleteConfirmKeep: 'Keep it',
   },
 
+  // Titles a fix or "Plan the rest" makes from the old one (RULES §3, §8 S9): "First 10 min: Essay".
+  titlePrefixes: {
+    first10: 'First 10 min: ',
+    justOpen: 'Just open it: ',
+    restOf: 'Rest of: ',
+  },
+
   // S7 Start (RULES §8)
   start: {
     startingNow: 'Starting now?',

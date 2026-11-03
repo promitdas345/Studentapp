@@ -4,6 +4,8 @@ import {
   ANSWERED_STATUSES,
   activeDatesThisWeek,
   activeDaysThisWeek,
+  bestTimeOfDay,
+  dayPartOf,
   effectiveWeeklyGoal,
   goalMet,
   type GoalProfile,
@@ -230,5 +232,69 @@ describe('goalMet', () => {
     expect(goalMet(3, 4)).toBe(false);
     expect(goalMet(0, 2)).toBe(false);
     expect(goalMet(7, 7)).toBe(true);
+  });
+});
+
+describe('bestTimeOfDay (RULES.md §4.4)', () => {
+  // A task planned to start at a St John's clock time on Wed Oct 21 (UTC−2:30).
+  const at = (status: string, local: string) => {
+    const [h, m] = local.split(':').map(Number);
+    const total = h * 60 + m + 150; // + 2:30 to get UTC
+    const day = total >= 24 * 60 ? 22 : 21;
+    const utcMinutes = total % (24 * 60);
+    const hh = String(Math.floor(utcMinutes / 60)).padStart(2, '0');
+    const mm = String(utcMinutes % 60).padStart(2, '0');
+    return { status, start_at: `2026-10-${day}T${hh}:${mm}:00Z` };
+  };
+
+  test('parts of the day follow RULES.md §4.4', () => {
+    expect(dayPartOf('05:00')).toBe('morning');
+    expect(dayPartOf('11:59')).toBe('morning');
+    expect(dayPartOf('12:00')).toBe('afternoon');
+    expect(dayPartOf('16:59')).toBe('afternoon');
+    expect(dayPartOf('17:00')).toBe('evening');
+    expect(dayPartOf('21:59')).toBe('evening');
+    expect(dayPartOf('22:00')).toBe('night');
+    expect(dayPartOf('04:59')).toBe('night');
+  });
+
+  test('nothing with fewer than 5 answered check-ins', () => {
+    const four = [at('done', '09:00'), at('done', '09:30'), at('done', '10:00'), at('done', '10:30')];
+    expect(bestTimeOfDay(four, NL)).toBeNull();
+    // Planned and unanswered tasks aren't answers.
+    expect(bestTimeOfDay([...four, at('planned', '11:00'), at('unanswered', '11:00')], NL)).toBeNull();
+  });
+
+  test('the part with the highest share of Done, among parts with 3+ check-ins', () => {
+    const tasks = [
+      at('done', '09:00'),
+      at('not_yet', '09:30'),
+      at('partly', '10:00'), // morning: 1 of 3 done
+      at('done', '19:00'),
+      at('done', '19:30'),
+      at('not_yet', '20:00'), // evening: 2 of 3 done
+      at('done', '13:00'),
+      at('done', '14:00'), // afternoon: 2 of 2, too few to count
+    ];
+    expect(bestTimeOfDay(tasks, NL)).toBe('evening');
+  });
+
+  test('a tie goes to the part with more check-ins, then the earlier one', () => {
+    const tied = [
+      at('done', '09:00'), at('not_yet', '09:30'), at('done', '10:00'), at('not_yet', '10:30'), // 2 of 4
+      at('done', '19:00'), at('not_yet', '19:30'), at('done', '20:00'), at('not_yet', '20:30'), // 2 of 4
+    ];
+    expect(bestTimeOfDay(tied, NL)).toBe('morning');
+    expect(bestTimeOfDay([...tied, at('done', '21:00'), at('not_yet', '21:30')], NL)).toBe('evening'); // 3 of 6
+  });
+
+  test('nothing when nothing was done yet', () => {
+    const none = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30'].map((time) => at('not_yet', time));
+    expect(bestTimeOfDay(none, NL)).toBeNull();
+  });
+
+  test('uses the student’s local clock, at night across midnight too', () => {
+    const late = [at('done', '23:00'), at('done', '23:30'), at('done', '00:30'), at('not_yet', '09:00'), at('not_yet', '09:30'), at('not_yet', '10:00')];
+    expect(bestTimeOfDay(late, NL)).toBe('night');
   });
 });

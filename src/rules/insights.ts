@@ -9,7 +9,7 @@
 // Pure (no network, no clock, no React or Expo), so it can be unit tested: pass "now" and
 // the student's IANA time zone in. src/lib/time does the time-zone math.
 
-import { localDateOf, weekDates, weekStart } from '../lib/time';
+import { localDateOf, localTimeOf, weekDates, weekStart } from '../lib/time';
 
 // Only the two task columns this file reads, so callers can select just those.
 export type TaskForWeek = { status: string; checked_in_at: string | null };
@@ -79,4 +79,51 @@ function isAnswered(status: string): boolean {
 function clampGoal(goal: number): number {
   if (!Number.isFinite(goal)) return DEFAULT_GOAL;
   return Math.min(MAX_GOAL, Math.max(MIN_GOAL, Math.round(goal)));
+}
+
+// ─── Best time of day (RULES.md §4.4), for the "Try a better time" fix ────────────────────────
+
+// Parts of the day in local time: morning 5:00–11:59, afternoon 12:00–16:59,
+// evening 17:00–21:59, night 22:00–4:59.
+export type DayPart = 'morning' | 'afternoon' | 'evening' | 'night';
+
+const DAY_PARTS: readonly DayPart[] = ['morning', 'afternoon', 'evening', 'night'];
+
+// Shown only with 5+ answered check-ins in total, and only parts with 3+ check-ins count.
+const MIN_ANSWERED = 5;
+const MIN_IN_PART = 3;
+
+// The task columns this part reads: whether it was answered, and when it was planned to start.
+export type TaskForBestTime = { status: string; start_at: string };
+
+// clock time 'HH:mm' → its part of the day.
+export function dayPartOf(time: string): DayPart {
+  if (time >= '05:00' && time < '12:00') return 'morning';
+  if (time >= '12:00' && time < '17:00') return 'afternoon';
+  if (time >= '17:00' && time < '22:00') return 'evening';
+  return 'night';
+}
+
+// The part of the day with the highest share of Done among answered check-ins, going by when
+// each task was planned to start. null when there isn't enough to say, or nothing was done yet.
+// A tie goes to the part with more check-ins, then the earlier part of the day.
+export function bestTimeOfDay(tasks: TaskForBestTime[], tz: string): DayPart | null {
+  const answered = tasks.filter((task) => isAnswered(task.status));
+  if (answered.length < MIN_ANSWERED) return null;
+  const counts = new Map<DayPart, { total: number; done: number }>();
+  for (const task of answered) {
+    const part = dayPartOf(localTimeOf(task.start_at, tz));
+    const count = counts.get(part) ?? { total: 0, done: 0 };
+    counts.set(part, { total: count.total + 1, done: count.done + (task.status === 'done' ? 1 : 0) });
+  }
+  let best: { part: DayPart; share: number; total: number } | null = null;
+  for (const part of DAY_PARTS) {
+    const count = counts.get(part);
+    if (!count || count.total < MIN_IN_PART) continue;
+    const share = count.done / count.total;
+    if (!best || share > best.share || (share === best.share && count.total > best.total)) {
+      best = { part, share, total: count.total };
+    }
+  }
+  return best && best.share > 0 ? best.part : null;
 }
