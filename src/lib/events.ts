@@ -4,7 +4,7 @@
 import type { NudgeKind } from './schedule';
 import { getSupabase } from './supabase';
 
-type SettingKey =
+export type SettingKey =
   | 'hard_things'
   | 'weekly_goal'
   | 'plan_time'

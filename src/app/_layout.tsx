@@ -154,12 +154,13 @@ function RootNavigator() {
         <Stack.Screen name="onboarding/reminders" />
       </Stack.Protected>
       <Stack.Protected guard={status === 'ready'}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="plan" />
         <Stack.Screen name="start/[taskId]" />
         <Stack.Screen name="timer/[taskId]" />
         <Stack.Screen name="checkin/[taskId]" />
         <Stack.Screen name="fix/[taskId]" />
+        <Stack.Screen name="collect-info" />
       </Stack.Protected>
       {/* Support is always reachable (PRODUCT.md S13). */}
       <Stack.Screen name="support" />

@@ -9,7 +9,9 @@
 // Pure (no network, no clock, no React or Expo), so it can be unit tested: pass "now" and
 // the student's IANA time zone in. src/lib/time does the time-zone math.
 
-import { localDateOf, localTimeOf, weekDates, weekStart } from '../lib/time';
+import type { MissReason } from '../data/types';
+import { daysBetween, localDate, localDateOf, localTimeOf, weekDates, weekStart } from '../lib/time';
+import { isFixId, type FixId } from './fixes';
 
 // Only the two task columns this file reads, so callers can select just those.
 export type TaskForWeek = { status: string; checked_in_at: string | null };
@@ -126,4 +128,67 @@ export function bestTimeOfDay(tasks: TaskForBestTime[], tz: string): DayPart | n
     }
   }
   return best && best.share > 0 ? best.part : null;
+}
+
+// ─── This week (S11) ──────────────────────────────────────────────────────────────────────────
+
+// The task columns the week summary reads.
+export type TaskForSummary = TaskForWeek & { reason: string | null };
+
+export type WeekSummary = {
+  activeDays: number;
+  // "Tasks done: {k}": answered Done this week (by when they were answered, like the days).
+  tasksDone: number;
+  // "What got in the way most", once there are 2+ misses this week.
+  topReason: MissReason | null;
+};
+
+const MIN_MISSES_FOR_TOP_REASON = 2;
+
+export function weekSummary(tasks: TaskForSummary[], now: Date, tz: string): WeekSummary {
+  const week = new Set(weekDates(now, tz));
+  const thisWeek = tasks.filter(
+    (task) => task.checked_in_at !== null && week.has(localDateOf(task.checked_in_at, tz)),
+  );
+  const misses = thisWeek.filter((task) => task.status === 'not_yet' && task.reason !== null);
+  return {
+    activeDays: activeDaysThisWeek(tasks, now, tz),
+    tasksDone: thisWeek.filter((task) => task.status === 'done').length,
+    topReason: misses.length >= MIN_MISSES_FOR_TOP_REASON ? mostCommonReason(misses) : null,
+  };
+}
+
+// The reason that came up most; a tie goes to the one that came up most recently.
+function mostCommonReason(misses: TaskForSummary[]): MissReason {
+  const counts = new Map<string, { n: number; last: number }>();
+  for (const miss of misses) {
+    const at = new Date(miss.checked_in_at ?? 0).getTime();
+    const count = counts.get(miss.reason ?? '') ?? { n: 0, last: 0 };
+    counts.set(miss.reason ?? '', { n: count.n + 1, last: Math.max(count.last, at) });
+  }
+  const [reason] = [...counts.entries()].sort((a, b) => b[1].n - a[1].n || b[1].last - a[1].last)[0];
+  return reason as MissReason;
+}
+
+// "What works for me": fixes whose outcome was "worked", newest first, each one once (PRODUCT.md S11).
+export function whatWorksForMe(events: { fix_id: string; outcome: string | null; created_at: string }[]): FixId[] {
+  const worked = events
+    .filter((event) => event.outcome === 'worked' && isFixId(event.fix_id))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  return [...new Set(worked.map((event) => event.fix_id as FixId))];
+}
+
+// ─── Welcome back (S14) ───────────────────────────────────────────────────────────────────────
+
+// After 3+ days since the last answered check-in. For someone who never checked in, count from
+// when they signed up (pass profiles.created_at instead).
+export const WELCOME_BACK_DAYS = 3;
+
+export function welcomeBackDue(lastActivity: string, now: Date, tz: string): boolean {
+  return daysBetween(localDateOf(lastActivity, tz), localDate(now, tz)) >= WELCOME_BACK_DAYS;
+}
+
+// "Make this week's goal lighter": one day less than this week's goal, never below 2.
+export function lighterGoal(currentGoal: number): number {
+  return Math.max(MIN_GOAL, clampGoal(currentGoal) - 1);
 }

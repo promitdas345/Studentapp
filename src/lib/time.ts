@@ -13,7 +13,7 @@
 
 import { DateTime, IANAZone } from 'luxon';
 
-import { en } from '../copy/en';
+import { en, fill } from '../copy/en';
 
 const MINUTES_PER_DAY = 24 * 60;
 
@@ -71,6 +71,23 @@ export function formatTime(time: string): string {
   const suffix = hour < 12 ? en.time.am : en.time.pm;
   const hour12 = hour % 12 === 0 ? 12 : hour % 12;
   return `${hour12}:${pad2(minute)} ${suffix}`;
+}
+
+// '2026-11-05' → 'Thursday, Nov 5', for "Reminders are off until {date}." The words live in
+// src/copy/en.ts. A calendar date has no time zone, so this can't land on the wrong day.
+export function formatDate(date: string): string {
+  const day = calendarDay(date);
+  return fill(en.time.date, {
+    weekday: en.time.weekdays[day.weekday - 1],
+    month: en.time.months[day.month - 1],
+    day: day.day,
+  });
+}
+
+// Whole calendar days from one local date to another: ('2026-11-01', '2026-11-04') → 3.
+// Negative when `to` is earlier. Counts days, not 24-hour blocks, so a clock change can't shift it.
+export function daysBetween(from: string, to: string): number {
+  return Math.round(calendarDay(to).diff(calendarDay(from), 'days').days);
 }
 
 // The next :00 or :30 on the student's clock, strictly after now (the Plan screen's default

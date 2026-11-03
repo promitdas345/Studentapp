@@ -2,6 +2,8 @@ import { Settings } from 'luxon';
 
 import {
   addDays,
+  daysBetween,
+  formatDate,
   formatTime,
   isBefore,
   isValidTimeZone,
@@ -287,5 +289,30 @@ describe('purity', () => {
     expect(weekStart(now, NL)).toBe('2026-10-26');
     expect(toInstant('2026-11-01', '19:00', NL).toISOString()).toBe('2026-11-01T22:30:00.000Z');
     expect(localTimeOf('2026-11-01T22:30:00', NL)).toBe('19:00');
+  });
+});
+
+describe('formatDate', () => {
+  test('writes the weekday, month and day', () => {
+    expect(formatDate('2026-11-05')).toBe('Thursday, Nov 5');
+    expect(formatDate('2026-11-01')).toBe('Sunday, Nov 1');
+    expect(formatDate('2026-12-31')).toBe('Thursday, Dec 31');
+  });
+
+  test('throws on a bad date', () => {
+    expect(() => formatDate('Nov 5')).toThrow(RangeError);
+  });
+});
+
+describe('daysBetween', () => {
+  test('counts calendar days', () => {
+    expect(daysBetween('2026-11-01', '2026-11-04')).toBe(3);
+    expect(daysBetween('2026-11-04', '2026-11-01')).toBe(-3);
+    expect(daysBetween('2026-11-04', '2026-11-04')).toBe(0);
+  });
+
+  test('isn’t thrown off by the clock change or a month end', () => {
+    expect(daysBetween('2026-10-31', '2026-11-02')).toBe(2);
+    expect(daysBetween('2026-12-30', '2027-01-02')).toBe(3);
   });
 });

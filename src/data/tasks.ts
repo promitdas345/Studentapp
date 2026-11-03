@@ -19,14 +19,30 @@ export async function fetchTask(id: string): Promise<Task | null> {
   return (data as Task | null) ?? null;
 }
 
-// Check-ins answered since an instant, for "This week: n of goal days".
-export async function fetchCheckInsSince(sinceIso: string): Promise<Pick<Task, 'status' | 'checked_in_at'>[]> {
+// Check-ins answered since an instant, for "This week: n of goal days" and This week's numbers.
+export async function fetchCheckInsSince(
+  sinceIso: string,
+): Promise<Pick<Task, 'status' | 'checked_in_at' | 'reason'>[]> {
   const { data, error } = await getSupabase()
     .from('tasks')
-    .select('status, checked_in_at')
+    .select('status, checked_in_at, reason')
     .gte('checked_in_at', sinceIso);
   if (error) throw toDataError(error);
-  return (data ?? []) as Pick<Task, 'status' | 'checked_in_at'>[];
+  return (data ?? []) as Pick<Task, 'status' | 'checked_in_at' | 'reason'>[];
+}
+
+// When the student last answered a check-in, or null if never (Welcome back, PRODUCT.md S14).
+export async function fetchLastCheckIn(): Promise<string | null> {
+  const { data, error } = await getSupabase()
+    .from('tasks')
+    .select('checked_in_at')
+    .in('status', ['done', 'partly', 'not_yet'])
+    .not('checked_in_at', 'is', null)
+    .order('checked_in_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw toDataError(error);
+  return (data as Pick<Task, 'checked_in_at'> | null)?.checked_in_at ?? null;
 }
 
 export async function insertTasks(rows: NewTask[]): Promise<Task[]> {

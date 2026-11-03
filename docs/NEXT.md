@@ -1,6 +1,8 @@
 # Where we left off (Oct 23, 2026)
 
 Read this first in every new session, then keep it up to date at the end of the session.
+
+> **Build session paused, Nov 3 (resume here).** Built since Oct 23, all untested on a phone: reminders "Turn on" fix, `src/lib/schedule.ts` + notification sync and tap routing (M2), Start and timer screens (M2), fix rules `src/rules/fixes.ts`/`selectFix.ts`/`outcomes.ts` (M3), Check-in, Fix and "How did these go?" (M3), three tabs, This week, Settings, Delete my data and Welcome back (M4). 268 unit tests, tsc, lint and an Android bundle all pass; `supabase/tests/app_writes_check.mjs` proves every app write is allowed (15 PASS offline). Defaults from "Open questions" below were used: plan reminders as 14 one-off notifications, "Plan today?" before noon, grouped nudge opens Today, timer end replaces the check-in, a fix judged only by the task it created (RULES.md §4.2 note). **Still to do:** log those defaults in DECISIONS.md and this session in AI_LOG.md; update TECH.md §3 (tabs) and §6 (plan reminders); prepare the development build (`eas.json`, `expo-dev-client`, steps for Promit); the privacy page; then rewrite this file. Promit still owes: the rest of the M1 phone checklist (step 1 below) and the three "Turn on" questions.
 Rules for how to work are in `CLAUDE.md`. The why behind each choice is in `docs/DECISIONS.md`.
 
 ## Status

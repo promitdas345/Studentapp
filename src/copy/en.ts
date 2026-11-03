@@ -14,6 +14,10 @@ export const en = {
   time: {
     am: 'am',
     pm: 'pm',
+    // Dates are written like 'Thursday, Nov 5' (src/lib/time.ts formatDate). Monday first.
+    weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    date: '{weekday}, {month} {day}',
   },
 
   // S1 Welcome (first launch only)
@@ -153,6 +157,66 @@ export const en = {
     timeUp: 'Time’s up',
     done: 'I’m done',
     stop: 'Stop',
+  },
+
+  // The three tabs (PRODUCT.md §7)
+  tabs: {
+    today: 'Today',
+    week: 'This week',
+    settings: 'Settings',
+  },
+
+  // S14 Welcome back (RULES §8)
+  welcomeBack: {
+    text: 'Welcome back. No catching up needed — let’s just plan today.',
+    planToday: 'Plan today',
+    lighterGoal: 'Make this week’s goal lighter',
+  },
+
+  // S11 This week (RULES §8)
+  week: {
+    title: 'This week',
+    days: '{n} of {goal} days',
+    tasksDone: 'Tasks done: {k}',
+    topReason: 'What got in the way most: {reason}',
+    worksTitle: 'What works for me',
+    worksEmpty: 'Fixes that work for you will show up here.',
+    tryThis: 'Try this: {fix}',
+    share: 'Share my week',
+    // Never includes task titles (PRODUCT.md S11).
+    shareText: 'This week I checked in on {n} of {goal} days and finished {k} tasks.',
+    shareTextOne: 'This week I checked in on {n} of {goal} days and finished 1 task.',
+  },
+
+  // S12 Settings (RULES §8)
+  settings: {
+    title: 'Settings',
+    hardest: 'What’s hardest for me',
+    goal: 'Weekly goal',
+    planReminder: 'Plan reminder',
+    startNudges: 'Start nudges',
+    extraReminders: 'Extra reminders',
+    extraRemindersHint: 'A heads-up 10 minutes before, and once more if you haven’t started.',
+    quietHours: 'Quiet hours',
+    quietFrom: 'From',
+    quietTo: 'To',
+    takeBreak: 'Take a break',
+    breakDays: { 1: '1 day', 3: '3 days', 7: '7 days' },
+    onBreak: 'Taking a break is fine. Reminders are off until {date}.',
+    endBreak: 'Turn reminders back on',
+    support: 'Need to talk to someone?',
+    whatWeCollect: 'What we collect',
+    privacy: 'Privacy',
+    deleteData: 'Delete my data',
+    deleteFirst: 'This deletes your plans, check-ins and settings. It can’t be undone.',
+    deleteSecond: 'Delete everything now?',
+    deleteButton: 'Delete everything',
+    deleteKeep: 'Keep it',
+    deleted: 'Deleted. Thanks for trying Follow Through.',
+    ok: 'OK',
+    testerCode: 'Tester code',
+    version: 'Version',
+    feedback: 'Send feedback',
   },
 
   // S9 Check-in (RULES §2, §8)

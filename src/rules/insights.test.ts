@@ -8,6 +8,10 @@ import {
   dayPartOf,
   effectiveWeeklyGoal,
   goalMet,
+  lighterGoal,
+  weekSummary,
+  welcomeBackDue,
+  whatWorksForMe,
   type GoalProfile,
   type TaskForWeek,
 } from './insights';
@@ -296,5 +300,72 @@ describe('bestTimeOfDay (RULES.md §4.4)', () => {
   test('uses the student’s local clock, at night across midnight too', () => {
     const late = [at('done', '23:00'), at('done', '23:30'), at('done', '00:30'), at('not_yet', '09:00'), at('not_yet', '09:30'), at('not_yet', '10:00')];
     expect(bestTimeOfDay(late, NL)).toBe('night');
+  });
+});
+
+describe('weekSummary (PRODUCT.md S11)', () => {
+  const answered = (status: string, checked_in_at: string, reason: string | null = null) => ({
+    status,
+    checked_in_at,
+    reason,
+  });
+
+  test('counts days, tasks done and the reason that came up most', () => {
+    const tasks = [
+      answered('done', '2026-10-26T15:00:00Z'), // Mon
+      answered('done', '2026-10-26T20:00:00Z'), // Mon
+      answered('not_yet', '2026-10-27T15:00:00Z', 'tired'), // Tue
+      answered('partly', '2026-10-28T15:00:00Z'), // Wed
+      answered('not_yet', '2026-10-28T16:00:00Z', 'tired'), // Wed
+      answered('not_yet', '2026-10-28T17:00:00Z', 'forgot'), // Wed
+      answered('done', '2026-10-21T15:00:00Z'), // last week
+    ];
+    expect(weekSummary(tasks, WED_OCT_28_NOON, NL)).toEqual({ activeDays: 3, tasksDone: 2, topReason: 'tired' });
+  });
+
+  test('"What got in the way most" waits for 2+ misses', () => {
+    expect(weekSummary([answered('not_yet', '2026-10-27T15:00:00Z', 'tired')], WED_OCT_28_NOON, NL).topReason).toBeNull();
+  });
+
+  test('a tie goes to the reason that came up most recently', () => {
+    const tasks = [
+      answered('not_yet', '2026-10-26T15:00:00Z', 'forgot'),
+      answered('not_yet', '2026-10-27T15:00:00Z', 'tired'),
+    ];
+    expect(weekSummary(tasks, WED_OCT_28_NOON, NL).topReason).toBe('tired');
+  });
+});
+
+describe('whatWorksForMe', () => {
+  test('fixes that worked, newest first, each once', () => {
+    const events = [
+      { fix_id: 'too_big_1', outcome: 'worked', created_at: '2026-10-20T15:00:00Z' },
+      { fix_id: 'tired_2', outcome: 'worked', created_at: '2026-10-25T15:00:00Z' },
+      { fix_id: 'too_big_1', outcome: 'worked', created_at: '2026-10-27T15:00:00Z' },
+      { fix_id: 'forgot_1', outcome: 'not_worked', created_at: '2026-10-28T15:00:00Z' },
+      { fix_id: 'forgot_2', outcome: null, created_at: '2026-10-28T16:00:00Z' },
+      { fix_id: 'old_fix', outcome: 'worked', created_at: '2026-10-28T17:00:00Z' },
+    ];
+    expect(whatWorksForMe(events)).toEqual(['too_big_1', 'tired_2']);
+  });
+
+  test('empty when nothing has worked yet', () => {
+    expect(whatWorksForMe([])).toEqual([]);
+  });
+});
+
+describe('welcomeBackDue (PRODUCT.md S14)', () => {
+  test('3 or more local days since the last check-in', () => {
+    expect(welcomeBackDue('2026-10-25T15:00:00Z', WED_OCT_28_NOON, NL)).toBe(true); // Sun → Wed
+    expect(welcomeBackDue('2026-10-26T02:00:00Z', WED_OCT_28_NOON, NL)).toBe(true); // Sun 11:30 pm in NL
+    expect(welcomeBackDue('2026-10-26T15:00:00Z', WED_OCT_28_NOON, NL)).toBe(false); // Mon → Wed
+  });
+});
+
+describe('lighterGoal', () => {
+  test('one day less, never below 2', () => {
+    expect(lighterGoal(4)).toBe(3);
+    expect(lighterGoal(3)).toBe(2);
+    expect(lighterGoal(2)).toBe(2);
   });
 });

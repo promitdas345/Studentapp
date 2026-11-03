@@ -63,6 +63,11 @@ export const FIXES: Record<FixId, Fix> = {
   if_then: { asks: 'if_then' },
 };
 
+// The first fix for a reason: This week's "Try this: {fix title}" (PRODUCT.md S11).
+export function firstFixFor(reason: MissReason): FixId {
+  return reason === 'other' ? 'if_then' : LADDERS[reason][0];
+}
+
 export const FIX_IDS = Object.keys(FIXES) as FixId[];
 
 export function isFixId(value: string): value is FixId {

@@ -36,3 +36,24 @@ export function lastStartTime(): string | null {
 export function rememberStartTime(time: string): void {
   write('ft.lastStartTime', time);
 }
+
+// Once a day at most, "Welcome back" counts as shown (for the welcome_back_shown event).
+export function shownToday(key: string, date: string): boolean {
+  return read(`ft.shown.${key}`) === date;
+}
+
+export function markShownToday(key: string, date: string): void {
+  write(`ft.shown.${key}`, date);
+}
+
+// After "Delete my data": nothing from the old account stays on the phone.
+export function forgetThisPhone(): void {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('ft.')) localStorage.removeItem(key);
+    }
+  } catch {
+    // Nothing important is lost: these are conveniences only.
+  }
+}

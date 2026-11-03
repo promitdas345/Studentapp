@@ -17,9 +17,18 @@ export const colors = {
   dot: '#C9D2DE',
 };
 
-export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
+// tab: a screen inside the tab bar, which already keeps clear of the bottom of the phone.
+export function Screen({
+  children,
+  scroll = true,
+  tab = false,
+}: {
+  children: ReactNode;
+  scroll?: boolean;
+  tab?: boolean;
+}) {
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.screen} edges={tab ? ['top'] : ['top', 'bottom']}>
       {scroll ? (
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {children}

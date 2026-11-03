@@ -41,3 +41,13 @@ export async function setFixOutcome(id: string, outcome: FixOutcome, outcomeTask
     .eq('id', id);
   if (error) throw toDataError(error);
 }
+
+// Fixes that worked, for "What works for me" (PRODUCT.md S11).
+export async function fetchWorkedFixEvents(): Promise<Pick<FixEvent, 'fix_id' | 'outcome' | 'created_at'>[]> {
+  const { data, error } = await getSupabase()
+    .from('fix_events')
+    .select('fix_id, outcome, created_at')
+    .eq('outcome', 'worked');
+  if (error) throw toDataError(error);
+  return (data ?? []) as Pick<FixEvent, 'fix_id' | 'outcome' | 'created_at'>[];
+}
