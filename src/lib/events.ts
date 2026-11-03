@@ -1,9 +1,9 @@
 // Our own minimal analytics (TECH.md §8), stored in the events table under the user's own row.
 // The names and props are fixed types, so free text and task titles can never end up here.
 // Never track Support screen opens or crisis-check matches.
+import type { NudgeKind } from './schedule';
 import { getSupabase } from './supabase';
 
-type NudgeKind = 'plan' | 'heads_up' | 'start' | 'follow_up' | 'checkin' | 'timer';
 type SettingKey =
   | 'hard_things'
   | 'weekly_goal'

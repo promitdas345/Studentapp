@@ -125,6 +125,30 @@ export const en = {
     deleteConfirmKeep: 'Keep it',
   },
 
+  // Notification text (RULES §7). {title} is the task's title, {length} its minutes.
+  notifications: {
+    planTodayTitle: 'Plan today?',
+    planTomorrowTitle: 'Plan tomorrow?',
+    planBody: 'Takes a minute. Pick 1–3 small things.',
+    headsUpTitle: 'In 10 minutes',
+    headsUpBody: '{title}',
+    startTitle: 'Starting now?',
+    startBody: '{title} · {length} min',
+    startGroupBody: '{n} things planned for now',
+    // The second line of a start nudge: the task's own plan, its cue, its tip, or the
+    // "Getting started" line (RULES §5.1, §7).
+    tipPhoneAway: 'Phone in your bag for this one?',
+    tipFocusOrMove: 'Focus mode on, or somewhere new?',
+    startingLine: 'Just the first few minutes.',
+    cueLine: 'After {cue} — time to start.',
+    followUpTitle: 'Still on?',
+    followUpBody: '{title}. Even 5 minutes counts.',
+    checkinTitle: 'How did it go?',
+    checkinBody: 'Did you get to {title}?',
+    timerTitle: 'Time’s up',
+    timerBody: 'How did {title} go?',
+  },
+
   // S13 Need to talk to someone? (RULES §6.2). Numbers checked Oct 20, 2026 against mun.ca.
   // Re-check them before each tester round.
   support: {
