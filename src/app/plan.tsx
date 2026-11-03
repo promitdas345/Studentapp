@@ -11,6 +11,7 @@ import { toDataError } from '../data/errors';
 import { deleteTask, fetchTasksOnDates, insertTasks, updateTask } from '../data/tasks';
 import type { Task } from '../data/types';
 import { lastStartTime, rememberStartTime } from '../lib/flags';
+import { syncNotifications } from '../lib/notifications';
 import { useSession } from '../lib/session';
 import { addDays, formatTime, localDate, localTimeOf, toInstant } from '../lib/time';
 import {
@@ -152,6 +153,7 @@ export default function Plan() {
       }
       const earliest = [...entries].sort((a, b) => a.time.localeCompare(b.time))[0].time;
       rememberStartTime(entries[entries.length - 1].time);
+      syncNotifications(profile);
       showFlash(fill(copy.saved, { time: formatTime(earliest) }));
       router.back();
     } catch (error) {
@@ -171,6 +173,7 @@ export default function Plan() {
         onPress: async () => {
           try {
             await deleteTask(editing.id);
+            syncNotifications(profile);
             router.back();
           } catch (error) {
             setProblem(toDataError(error).kind === 'network' ? en.errors.saveFailed : en.errors.server);

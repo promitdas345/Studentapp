@@ -9,7 +9,7 @@ import { en, fill } from '../copy/en';
 import { toDataError, type DataErrorKind } from '../data/errors';
 import { fetchCheckInsSince, fetchTasksOnDates } from '../data/tasks';
 import type { Task } from '../data/types';
-import { askForReminders, remindersAllowed } from '../lib/notifications';
+import { askForReminders, remindersAllowed, syncNotifications } from '../lib/notifications';
 import { useSession } from '../lib/session';
 import { addDays, formatTime, localDate, localTimeOf, toInstant, weekStart } from '../lib/time';
 import { activeDaysThisWeek, effectiveWeeklyGoal } from '../rules/insights';
@@ -85,6 +85,7 @@ export default function Today() {
 
   const turnOnReminders = async () => {
     const on = await askForReminders().catch(() => false);
+    if (on) syncNotifications(profile);
     setLoaded((current) => (current ? { ...current, remindersOn: on } : current));
   };
 
