@@ -60,6 +60,7 @@ These were proposed in the first build session and used to build M2–M3. All ar
   - `npx tsc --noEmit`, `npx jest` and `CI=1 EXPO_OFFLINE=1 npx expo lint`.
   - A bundle check: `EXPO_OFFLINE=1 CI=1 npx expo export --platform android --no-bytecode --output-dir <scratch>/export`, with a throwaway `.env` that you delete afterwards. Then `grep -c ExpoTopicSubscriptionModule` on the bundle must give 0.
   - After any SQL or `src/data/` change, run both offline database checks (setup at the top of `supabase/tests/pglite_check.mjs`): `pglite_check.mjs` and `app_writes_check.mjs`.
+  - After any screen change, run `tools/web-smoke/run.sh`. It runs the app in headless Chromium with Supabase faked, walks the whole loop, and fails on any browser error. On Nov 4 it found nested buttons on Today's task card, now fixed. It can't check notifications, the time picker or Android itself: only the phone can.
 - **Routes:** the tabs are in `src/app/(tabs)/`. A new screen must be added to the `ready` group in `src/app/_layout.tsx`.
 - **Words** go in `src/copy/en.ts`. New ones are listed at the end of RULES.md §8.
 

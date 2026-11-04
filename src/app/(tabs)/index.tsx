@@ -237,19 +237,21 @@ function TaskCard({ task, tz, now, late = false }: { task: Task; tz: string; now
     if (action === 'timer') router.push({ pathname: '/timer/[taskId]', params });
     if (action === 'checkin') router.push({ pathname: '/checkin/[taskId]', params });
   };
+  // The tappable part and Edit sit side by side, never one inside the other: a button inside a
+  // button confuses screen readers (and isn't allowed on the web).
   return (
-    <Pressable
-      onPress={open}
-      disabled={action === 'none'}
-      accessibilityRole={action === 'none' ? undefined : 'button'}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-      <View style={styles.cardText}>
+    <View style={styles.card}>
+      <Pressable
+        onPress={open}
+        disabled={action === 'none'}
+        accessibilityRole={action === 'none' ? undefined : 'button'}
+        style={({ pressed }) => [styles.cardText, pressed && styles.pressed]}>
         <Text style={styles.cardTitle}>{task.title}</Text>
         <Text style={styles.cardMeta}>
           {fill(copy.taskMeta, { time: formatTime(localTimeOf(task.start_at, tz)), length: task.duration_min })}
         </Text>
         <Text style={styles.cardStatus}>{copy.status[task.status]}</Text>
-      </View>
+      </Pressable>
       {task.status === 'planned' && !late ? (
         <Button
           label={copy.edit}
@@ -257,7 +259,7 @@ function TaskCard({ task, tz, now, late = false }: { task: Task; tz: string; now
           onPress={() => router.push({ pathname: '/plan', params: { taskId: task.id } })}
         />
       ) : null}
-    </Pressable>
+    </View>
   );
 }
 

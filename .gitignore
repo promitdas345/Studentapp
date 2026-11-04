@@ -42,3 +42,6 @@ example
 # generated native folders
 /ios
 /android
+
+# browser smoke test screenshots (tools/web-smoke)
+tools/web-smoke/shots/
