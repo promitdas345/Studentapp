@@ -8,7 +8,7 @@ Follow Through is a student project from a business course (BUSI 3630) at Memori
 
 ## What we collect
 - **Your tester code** (we give it to you), your phone's **time zone**, and your **settings** (weekly goal, reminder times, what's hardest for you).
-- **Your plans:** what you want to do, when, and for how long.
+- **Your plans:** what you want to do, when, and for how long, plus any "if… then…" plan or routine you add to one.
 - **Your check-ins:** done, partly or not yet, what got in the way, and any note you choose to add.
 - **The fixes** you're shown, and which ones you try.
 - **Basic app use**, for example when you open the app, open a reminder or start a timer. These records never include anything you typed.

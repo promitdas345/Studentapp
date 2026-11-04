@@ -64,6 +64,7 @@ Not in v1, even if it looks easy: due dates, syllabus import or Brightspace sync
 | File | What's in it |
 |---|---|
 | `docs/NEXT.md` | Where we left off and what's next. Read first. |
+| `docs/APP_GUIDE.md` | What's built, the phone checklist for M1–M4, and how to make the development build |
 | `docs/PRODUCT.md` | Screens, the loop, what's left out |
 | `docs/RULES.md` | Tone, reasons → fixes, how a fix is chosen, safety, every word the app shows |
 | `docs/TECH.md` | Stack, data model, notifications, builds, privacy checklist |

@@ -1,75 +1,82 @@
-# Where we left off (Oct 23, 2026)
+# Where we left off (Nov 4, 2026)
 
 Read this first in every new session, then keep it up to date at the end of the session.
-
-> **Build session paused, Nov 3 (resume here).** Built since Oct 23, all untested on a phone: reminders "Turn on" fix, `src/lib/schedule.ts` + notification sync and tap routing (M2), Start and timer screens (M2), fix rules `src/rules/fixes.ts`/`selectFix.ts`/`outcomes.ts` (M3), Check-in, Fix and "How did these go?" (M3), three tabs, This week, Settings, Delete my data and Welcome back (M4). 268 unit tests, tsc, lint and an Android bundle all pass; `supabase/tests/app_writes_check.mjs` proves every app write is allowed (15 PASS offline). Defaults from "Open questions" below were used: plan reminders as 14 one-off notifications, "Plan today?" before noon, grouped nudge opens Today, timer end replaces the check-in, a fix judged only by the task it created (RULES.md §4.2 note). **Still to do:** log those defaults in DECISIONS.md and this session in AI_LOG.md; update TECH.md §3 (tabs) and §6 (plan reminders); prepare the development build (`eas.json`, `expo-dev-client`, steps for Promit); the privacy page; then rewrite this file. Promit still owes: the rest of the M1 phone checklist (step 1 below) and the three "Turn on" questions.
-Rules for how to work are in `CLAUDE.md`. The why behind each choice is in `docs/DECISIONS.md`.
+Rules for how to work are in `CLAUDE.md`. The why behind each choice is in `docs/DECISIONS.md`. What's built and how to test it is in `docs/APP_GUIDE.md`.
 
 ## Status
 
 | Milestone (PLAN.md §1) | State |
 |---|---|
-| **M0 Setup** | **Done.** Promit saw "Hello from Supabase" on his Android in Expo Go (Oct 21). |
-| **M1 Data, onboarding, Today, Plan** | **Built, reviewed and fixed. Database set up in the real project (Oct 23: migration run, security check 11 of 11 PASS). Waiting for Promit's phone test.** |
-| M2 Notifications, Start, timer, first development build | Not started. Planned Oct 25–27. |
-| M3 Check-in, fixes, safety | Not started. Planned Oct 28–30. |
-| M4 This week, Settings, delete, polish, privacy page | Not started. Planned Oct 31–Nov 2. |
-| M5 Go / no-go, tester builds | Tue Nov 3. |
+| **M0 Setup** | **Done.** Promit saw "Hello from Supabase" on an Android phone in Expo Go (Oct 21). |
+| **M1 Data, onboarding, Today, Plan** | **Built; phone test partly done.** Database set up in the real project on Oct 23 (security check 11 of 11 PASS). In Expo Go, onboarding worked, two tasks were saved, and a wrong tester code was refused politely. The Expo Go crash on Android is fixed (DECISIONS.md, Oct 23). Left: APP_GUIDE.md §3, items 1–7. |
+| M2 Notifications, Start, timer, first development build | **Built Nov 3, not yet seen on a phone.** The development build isn't made yet (APP_GUIDE.md §4). |
+| M3 Check-in, fixes, safety | **Built Nov 3, not yet seen on a phone.** |
+| M4 This week, Settings, delete, polish, privacy page | **Built Nov 3, not yet seen on a phone.** The privacy page waits for team decisions (APP_GUIDE.md §5). |
+| M5 Go / no-go, tester builds | Tue Nov 3 has passed. The new date is the team's call. |
 
-What's in the repo for M1:
-- Screens (`src/app/`): Welcome, What we collect (18+, tester code, anonymous sign-in on Start), Setup, Reminders, Today, Plan (add/edit/delete, 3-a-day cap, 2 with a plan hint), Support. Screens are gated by sign-in state in `src/app/_layout.tsx` (Expo Router protected routes) using `src/lib/session.tsx`.
-- Pure modules with 164 unit tests: `src/lib/time.ts` (Luxon; St. John's offsets and the Nov 1 clock change), `src/rules/safety.ts` (crisis check, word-start matching), `src/rules/plan.ts`, `src/rules/insights.ts`, `src/lib/quietHours.ts`, `src/lib/env.ts`.
-- Data layer: `src/data/` (types, profile, tasks, errors). All words: `src/copy/en.ts`.
-- Database: `supabase/migrations/20261022000000_m1_core.sql` (one RLS policy per action, revoke-then-grant, profiles can't change tester_code/variant/consent). Self-check: `supabase/tests/rls_check.sql` (11 checks). Offline harness: `supabase/tests/pglite_check.mjs` (all 11 PASS).
-- An independent AI code review found 3 bugs and several small issues; all fixed (commit 71c7656).
-- Expo Go crash fix (Oct 23): the app imports `expo-notifications` through `src/lib/expoNotifications.ts`, one file at a time. Importing the package itself crashed Expo Go on Android with "Cannot find native module 'ExpoTopicSubscriptionModule'": its main file loads the push topic module, which Expo Go for SDK 57 leaves out (checked in Expo Go's source, `sdk-57` branch, `ExperiencePackagePicker.kt`). Still the same in expo-notifications 57.0.24 and 58.1.6.
+Checked on Nov 4: 268 unit tests, `npx tsc --noEmit`, lint and an Android bundle all pass. `supabase/tests/app_writes_check.mjs` shows every write the app makes is allowed (15 PASS offline), and `pglite_check.mjs` still gives 11 PASS.
+
+Not built (PLAN.md §3 cut list): buttons on notifications (#1), the scaffolding card (#2), the bad-weeks card (#3) and the reminders-only comparison (#4; the app ignores `profiles.variant`).
 
 ## Next steps
 
-### 1. Promit: finish the M1 phone test (on his Windows laptop, in `Desktop\student app business 3630\Studentapp`)
-1. `git restore package-lock.json` (only if `git pull` complains about it), then `git pull`, then `npm ci`. Always use `npm ci` after pulling, not `npm install` (Node 25's npm rewrites the lock file).
-2. Supabase → SQL Editor: run `supabase/migrations/20261022000000_m1_core.sql` **once**, then `supabase/tests/rls_check.sql`. Every row must say PASS. **Done Oct 23: all 11 PASS.**
-3. `npx expo start --clear`, open in Expo Go on his Android. There should be no red ERROR. (Before the Oct 23 fix, Expo Go on Android crashed with "Cannot find native module 'ExpoTopicSubscriptionModule'".)
-4. Checklist (PLAN.md §2 M1):
-   - Onboarding (Welcome → What we collect → Setup → Reminders → Today) takes under 2 minutes. Supabase Table Editor → profiles shows the tester code, time zone `America/St_Johns`, consent version and 18+.
-   - A teammate who has never seen it plans a task in under 30 seconds.
-   - 3 tasks on one day, then a 4th is refused politely. Edit and delete work.
-   - Plan a task for 7:00 pm today. Table Editor → tasks: `start_at` must be **21:30 UTC** (UTC−2:30 until Nov 1; from Nov 1 it's 22:30). This is the only check of time zones on the phone's JS engine (Hermes).
-   - A crisis phrase as a task title opens "Need to talk to someone?" and isn't saved.
-5. Tell the build session what failed, one sentence per problem, with a photo.
+### 1. Promit: the phone test
+1. `git pull` (no `npm ci` needed; no packages changed), then `npx expo start --clear`.
+2. Go through `docs/APP_GUIDE.md` §3 in order. Send one sentence per problem, with a screenshot.
+3. The reminders "Turn on" button: say what happens when you tap it now, and send a screenshot of any yellow `[reminders: …]` line in the Expo terminal.
 
-### 2. Build session: fix whatever the phone test finds, then start M2
-Before M2, read `docs/DOCS_CHECK.md` "For Milestone 2". Key points:
-- Move to a **development build** (EAS, `eas init` links the project to Promit's Expo org "promitdas's team"; he skipped creating a project on the website on purpose). Android dev build APK is free. Consider upgrading to SDK 58 at the same time (SDK 57 was chosen only because Expo Go runs 57).
-- Android: create the `reminders` channel before asking permission (already done in `src/lib/notifications.ts`). Exact alarms: measure lateness first (PLAN.md M2), log it in DECISIONS.md.
-- `src/lib/schedule.ts` must be pure with tests (TECH.md §6, §11), and `syncNotifications()` re-syncs on start, foreground and after every save.
-- While the app still runs in Expo Go, import new `expo-notifications` functions (scheduling, handler, listeners) through `src/lib/expoNotifications.ts`, never from `'expo-notifications'` (see the crash fix above). In a development build the package import works again, so that file can go then.
-- Check trigger types (`SchedulableTriggerInputTypes.DATE`/`DAILY`) against the installed `expo-notifications` types; the docs source didn't include the API reference.
+### 2. Build session: fix what the phone test finds, then the development build
+- Fix problems first. Each fix gets the checks below before it's called done.
+- Then walk Promit through `docs/APP_GUIDE.md` §4. `expo-dev-client` is added **at that step**, not before, because once it's installed `npx expo start` opens development builds by default. That would confuse testing in Expo Go.
+- Decide SDK 57 vs 58 at that step (DECISIONS.md, Nov 4).
+- Measure Android nudge lateness with the screen off and write it in DECISIONS.md. If it's more than about 2 minutes late, see DOCS_CHECK.md "For Milestone 2" (`SCHEDULE_EXACT_ALARM`; SDK 58 adds the exact-alarm permission calls).
+- If notifications show a grey square for an icon, add the `expo-notifications` plugin with an icon to `app.json` (needs a new build).
+
+### 3. Before testers
+- The team decisions in `docs/APP_GUIDE.md` §5: start date, iPhone/Apple, feedback email, data after the test, pass line, Dr. Nwauche's written OK.
+- Put the privacy page live (fill the brackets in `docs/PRIVACY.md`), and set `PRIVACY_URL` (and `FEEDBACK_EMAIL`) in `src/lib/links.ts`.
+- Raise Supabase's anonymous sign-in limit (30 per hour per IP) before onboarding several testers on one campus network (DOCS_CHECK.md, M1).
+- Re-check the Support numbers (RULES.md §6.2) before each tester round.
+- Tester builds: an Android APK (`eas build --profile preview --platform android`); TestFlight only if the team decides on iPhone.
+
+## Defaults in use that Promit hasn't confirmed
+
+These were proposed in the first build session and used to build M2–M3. All are logged in DECISIONS.md (Nov 3). Change any of them, and the build session updates RULES.md/TECH.md and the code.
+- A fix counts as working only by the task the fix created (RULES.md §4.2 note).
+- Plan reminders are 14 one-off notifications that skip break days, not one repeating notification.
+- A plan reminder before noon says "Plan today?", otherwise "Plan tomorrow?". It's skipped when that day already has a plan.
+- A grouped nudge (several tasks at the same minute) opens Today.
+- Once a task is started, "Time's up" at the timer's end replaces the check-in notification.
 
 ## Open questions
 
-- **For the team:** PRIVACY.md now says Supabase keeps technical sign-in logs (IP address, device type). Should the "What we collect" screen say it too? If yes: RULES §8 S2 → `src/copy/en.ts` → bump `CONSENT_VERSION` in `src/data/profile.ts`.
-- **Proposed in the first build session, not yet confirmed by Promit** (use these defaults when building M2–M3 unless he says otherwise, and log them in DECISIONS.md then):
-  - "Did the fix work?" (RULES §4.2): judge a fix only by the task the fix created (`tasks.from_fix_event`), not any later task, so the "fix worked" rate isn't inflated.
-  - Plan reminder: schedule it as one-off notifications for the next 14 days (re-made on every app open, skipping break days), not one daily repeating notification, because a repeating one can't skip a break.
-  - A plan reminder set before noon says "Plan today?", otherwise "Plan tomorrow?" (no extra column).
-  - A grouped nudge (several tasks at the same minute) opens Today.
-  - Once a task is started, the timer-end notification replaces the check-in notification.
-- Still open from the kit (DECISIONS.md "Open"): feedback email (#3), data after the test (#4), Apple $99 only if testers have iPhones (#5), pass line locked before Nov 3 (#6), Dr. Nwauche's written OK before any tester (#7).
+- **For the team:** PRIVACY.md says Supabase keeps technical sign-in logs (IP address, device type). Should the "What we collect" screen say it too? If yes: RULES §8 S2 → `src/copy/en.ts` → bump `CONSENT_VERSION` in `src/data/profile.ts`.
+- Still open from the kit (DECISIONS.md "Open"): feedback email (#3), data after the test (#4), Apple $99 only if testers have iPhones (#5), pass line locked before testing (#6), Dr. Nwauche's written OK before any tester (#7).
+
+## Things a build session must know
+
+- **Import `expo-notifications` only through `src/lib/expoNotifications.ts`.** The package's main file crashes Expo Go on Android.
+- **Checks before calling anything done:**
+  - `npx tsc --noEmit`, `npx jest` and `CI=1 EXPO_OFFLINE=1 npx expo lint`.
+  - A bundle check: `EXPO_OFFLINE=1 CI=1 npx expo export --platform android --no-bytecode --output-dir <scratch>/export`, with a throwaway `.env` that you delete afterwards. Then `grep -c ExpoTopicSubscriptionModule` on the bundle must give 0.
+  - After any SQL or `src/data/` change, run both offline database checks (setup at the top of `supabase/tests/pglite_check.mjs`): `pglite_check.mjs` and `app_writes_check.mjs`.
+- **Routes:** the tabs are in `src/app/(tabs)/`. A new screen must be added to the `ready` group in `src/app/_layout.tsx`.
+- **Words** go in `src/copy/en.ts`. New ones are listed at the end of RULES.md §8.
 
 ## Facts about Promit's setup
 
-- Windows laptop, VS Code, PowerShell, Node **25** (not LTS; installing the current LTS from nodejs.org is better before M2). Android phone with Expo Go.
-- GitHub: `promitdas345/Studentapp` (**public** by Promit's choice: never commit names, the tester list, or keys). Claude GitHub App installed on it.
+- Windows laptop, VS Code, PowerShell, Node **25** (not LTS; the current LTS from nodejs.org is better before the development build). Android phone with Expo Go.
+- GitHub: `promitdas345/Studentapp` (**public** by Promit's choice: never commit names, the tester list or keys). The Claude GitHub App is installed on it. Build sessions push to `main`, and Promit runs `git pull`.
 - Supabase: project "follow-through" in **Canada (Central)**, free plan. "Automatically expose new tables" is off and "automatic RLS" is on, so every table needs explicit grants. Anonymous sign-ins are on.
 - `.env` uses `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` (the Connect panel's name; the app also accepts `..._PUBLISHABLE_KEY`).
-- Expo account with organization "promitdas's team".
-- Promit is a beginner with React Native/TypeScript/Supabase: plain words, small steps, and after each step say exactly what to do on the phone and what he should see.
+- Expo account with organization "promitdas's team". The project isn't linked to EAS yet (`eas init` at the development-build step).
+- Promit is a beginner with React Native, TypeScript and Supabase. Use plain words and small steps, and after each step say exactly what to do on the phone and what should appear.
 
 ## Tips for a cloud build session
 
-- docs.expo.dev and supabase.com may be blocked by the network policy. Read the official docs source instead (it's the same content):
-  `git clone --depth 1 --filter=blob:none --sparse https://github.com/expo/expo.git` then `git sparse-checkout set docs/pages` (versioned API pages are under `docs/pages/versions/v57.0.0/`), and the same for `supabase/supabase` with `apps/docs/content/guides`. Clone into the scratchpad, not the repo.
-- Expo's servers are blocked too: run Expo CLI with `EXPO_OFFLINE=1` (e.g. `EXPO_OFFLINE=1 npx expo install <pkg>`, `EXPO_OFFLINE=1 CI=1 npx expo lint`). npm itself works.
-- Checks before calling anything done: `npx tsc --noEmit`, `npx jest`, `CI=1 EXPO_OFFLINE=1 npx expo lint`, and a bundle check: `EXPO_OFFLINE=1 CI=1 npx expo export --platform android --output-dir <scratch>/export` with a throwaway `.env` (delete it after).
-- New SQL: run `supabase/tests/pglite_check.mjs` (instructions at its top) before giving Promit a migration.
+- docs.expo.dev and supabase.com may be blocked by the network policy, so read the official docs source instead. It's the same content:
+  - Expo: `git clone --depth 1 --filter=blob:none --sparse https://github.com/expo/expo.git`, then `git sparse-checkout set docs/pages`. Use the **main** branch: the versioned API pages (`docs/pages/versions/v57.0.0/sdk/`) aren't on the `sdk-57` branch.
+  - Supabase: the same with `supabase/supabase` and `apps/docs/content/guides`.
+  - Clone into the scratchpad, not the repo.
+- The installed package's `.d.ts` files are the final word on an API (for example `node_modules/expo-notifications/build/Notifications.types.d.ts`).
+- Expo's servers are blocked too, so run Expo CLI with `EXPO_OFFLINE=1`. npm itself works.

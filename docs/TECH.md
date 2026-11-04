@@ -36,22 +36,24 @@ src/app/                          # Expo Router screens (the SDK 57 template kee
   _layout.tsx                     # sign-in gate, notification-tap handling, resync on foreground
   onboarding/welcome.tsx  collect.tsx  setup.tsx  reminders.tsx
   (tabs)/_layout.tsx  index.tsx (Today)  week.tsx  settings.tsx
-  plan.tsx                        # add/edit; params: date, prefill, fromFixEvent
+  plan.tsx                        # add/edit; params: day, taskId, prefill (JSON from a fix or "Plan the rest")
   start/[taskId].tsx  timer/[taskId].tsx  checkin/[taskId].tsx  fix/[taskId].tsx
-  support.tsx
+  support.tsx  collect-info.tsx  loading.tsx  offline.tsx
 src/                              # everything that isn't a screen
   copy/en.ts                      # every user-facing string
   rules/fixes.ts                  # fix ladders as data (RULES.md §3)
   rules/selectFix.ts              # RULES.md §4.1
   rules/outcomes.ts               # RULES.md §4.2
-  rules/insights.ts               # week stats, best time of day, scaffolding/bad-week checks
+  rules/insights.ts               # week stats, best time of day, What works for me, Welcome back
+  rules/plan.ts  rules/start.ts   # planning limits and the prefill; Start, timer and Today's card taps
   rules/safety.ts                 # RULES.md §6.1
   lib/schedule.ts                 # pure: what to schedule (§6)
-  lib/notifications.ts            # the side effects: permission, channel, schedule/cancel, tap routing
+  lib/notifications.ts            # the side effects: permission, channel, schedule/cancel (taps: src/app/_layout.tsx)
+  lib/expoNotifications.ts        # expo-notifications imported file by file (Expo Go on Android, DECISIONS.md Oct 23)
   lib/time.ts                     # time-zone-aware helpers (§7)
   lib/supabase.ts  lib/events.ts
-  data/                           # small typed query functions per table
-  components/
+  data/                           # small typed query functions: profile, tasks, fixEvents, account (Delete my data)
+  components/                     # ui.tsx, TimeField.tsx, WeekDots.tsx
 supabase/migrations/
 docs/
 ```
@@ -161,9 +163,9 @@ Notes:
 - Drop anything in the past, inside quiet hours or during a break.
 - Tasks with the same start minute get one grouped nudge.
 - Never more than 8 in one local day: drop follow-ups first, then heads-ups.
-- The plan reminder isn't in this list. It's one **daily repeating** notification at `plan_time`.
+- Plan reminders are in the list too: one-off notifications at `plan_time` for the next **14 days**, remade on every sync, skipping break days, quiet hours and days that already have a plan (DECISIONS.md, Nov 3). One daily repeating notification couldn't skip a break.
 
-**`src/lib/notifications.ts` (side effects).** `syncNotifications()` cancels all scheduled notifications and schedules `buildSchedule(...)` plus the daily plan reminder. Call it on app start, when the app comes to the foreground, and after any save (plan, settings, check-in, fix). It must be safe to call any number of times.
+**`src/lib/notifications.ts` (side effects).** `syncNotifications()` loads the tasks, builds the schedule, then cancels all scheduled notifications and schedules `buildSchedule(...)`. Because it loads first, a failed load (no internet) leaves the old set in place. Import every `expo-notifications` function through `src/lib/expoNotifications.ts`, never from `'expo-notifications'` (DECISIONS.md, Oct 23). Call it on app start, when the app comes to the foreground, and after any save (plan, settings, check-in, fix). It must be safe to call any number of times.
 
 **Taps.** Every notification carries `data.url` (for example `/checkin/<taskId>`). Handle taps both when the app is running and when it starts from a tap (Expo Router's docs show the pattern with `expo-notifications`).
 

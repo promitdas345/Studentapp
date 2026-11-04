@@ -3,6 +3,7 @@
 A phone app that helps university students do the studying they planned, and fix the plan when a day goes sideways. BUSI 3630 team project (Memorial University).
 
 - **Rules for anyone (or any AI agent) working on the code:** [`CLAUDE.md`](CLAUDE.md)
+- **What's built and how to test it:** [`docs/APP_GUIDE.md`](docs/APP_GUIDE.md) (also how to make the development build)
 - **What v1 is and why:** [`docs/`](docs/), starting with [`docs/PRODUCT.md`](docs/PRODUCT.md) and [`docs/PLAN.md`](docs/PLAN.md)
 
 ## Run it on your phone
